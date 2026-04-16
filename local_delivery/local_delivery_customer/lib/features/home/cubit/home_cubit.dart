@@ -23,10 +23,16 @@ class HomeCubit extends Cubit<HomeState> {
     emit(HomeLoading());
 
     final categoriesResult = await _getCategoriesUseCase.getCategories();
-    final trendingResult = await _getTrendingProductsUseCase.getTrendingProducts();
+    final trendingResult =
+        await _getTrendingProductsUseCase.getTrendingProducts();
+    final freshCategoriesResult =
+        await _getFreshSubcategoriesUseCase.getSubcategories(
+      categoryId: "fresh",
+    );
 
     List<CategoryModel> categories = [];
     List<TrendingProductModel> trending = [];
+    List<SubcategoryModel> freshSubcategories = [];
 
     final categoriesFailure = categoriesResult.fold((f) => f, (_) => null);
     if (categoriesFailure != null) {
@@ -40,22 +46,16 @@ class HomeCubit extends Cubit<HomeState> {
       return;
     }
 
+    final freshCategoriesFailure =
+        freshCategoriesResult.fold((f) => f, (_) => null);
+    if (freshCategoriesFailure != null) {
+      emit(HomeError(freshCategoriesFailure.message));
+      return;
+    }
+
     categoriesResult.fold((_) {}, (data) => categories = data);
     trendingResult.fold((_) {}, (data) => trending = data);
-
-    // Find "fresh" category and load its subcategories
-    final freshCategoryId = categories
-        .where((c) => c.name.toLowerCase() == 'fresh')
-        .map((c) => c.id)
-        .firstOrNull;
-
-    List<SubcategoryModel> freshSubcategories = [];
-    if (freshCategoryId != null) {
-      final subcatResult = await _getFreshSubcategoriesUseCase.getSubcategories(
-        categoryId: freshCategoryId,
-      );
-      subcatResult.fold((_) {}, (data) => freshSubcategories = data);
-    }
+    freshCategoriesResult.fold((_) {}, (data) => freshSubcategories = data);
 
     emit(HomeLoaded(
       categories: categories,

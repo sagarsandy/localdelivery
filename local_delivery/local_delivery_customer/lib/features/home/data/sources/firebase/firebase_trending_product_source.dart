@@ -9,11 +9,12 @@ class FirebaseTrendingProductSource implements TrendingProductRemoteSource {
   final FirebaseFirestore _firestore;
 
   @override
-  Future<List<TrendingProductDto>> fetchTrendingProducts({int limit = 10}) async {
+  Future<List<TrendingProductDto>> fetchTrendingProducts(
+      {int limit = 10}) async {
     final snapshot = await _firestore
         .collection(FirebaseCollections.products)
-        .where('isAvailable', isEqualTo: true)
-        .where('inStock', isEqualTo: true)
+        // .where('isAvailable', isEqualTo: true)
+        // .where('inStock', isEqualTo: true)
         .limit(limit)
         .get();
     return snapshot.docs.map(TrendingProductDto.fromFirestore).toList();
