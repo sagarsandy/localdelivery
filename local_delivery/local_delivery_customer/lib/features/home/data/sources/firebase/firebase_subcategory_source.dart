@@ -12,8 +12,7 @@ class FirebaseSubcategorySource implements SubcategoryRemoteSource {
   Future<List<SubcategoryDto>> fetchSubcategories({required String categoryId}) async {
     final snapshot = await _firestore
         .collection(FirebaseCollections.subcategories)
-        .where('category_id', isEqualTo: categoryId)
-        .orderBy('sort_order')
+        .where('category', isEqualTo: categoryId)
         .get();
     return snapshot.docs.map(SubcategoryDto.fromFirestore).toList();
   }

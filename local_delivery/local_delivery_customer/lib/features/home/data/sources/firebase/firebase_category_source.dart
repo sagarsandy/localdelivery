@@ -12,7 +12,6 @@ class FirebaseCategorySource implements CategoryRemoteSource {
   Future<List<CategoryDto>> fetchCategories() async {
     final snapshot = await _firestore
         .collection(FirebaseCollections.categories)
-        .orderBy('sort_order')
         .get();
     return snapshot.docs.map(CategoryDto.fromFirestore).toList();
   }
