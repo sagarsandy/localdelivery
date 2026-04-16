@@ -1,12 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:local_delivery_customer/core/session/user_session.dart';
 import 'ld_app_routes.dart';
-import 'ld_page_route.dart';
 import '../../features/auth/login/router/login_page_route.dart';
 import '../../features/auth/otp/router/otp_page_route.dart';
 import '../../features/home/router/home_page_route.dart';
-import '../../features/store_detail/router/store_detail_page_route.dart';
-import '../../features/product_detail/router/product_detail_page_route.dart';
 import '../../features/cart/router/cart_page_route.dart';
 import '../../features/checkout/router/checkout_page_route.dart';
 import '../../features/orders/router/orders_page_route.dart';
@@ -24,8 +21,6 @@ class LDAppRouter {
       LoginPageRoute().route,
       OtpPageRoute().route,
       HomePageRoute().route,
-      StoreDetailPageRoute().route,
-      ProductDetailPageRoute().route,
       CartPageRoute().route,
       CheckoutPageRoute().route,
       OrdersPageRoute().route,

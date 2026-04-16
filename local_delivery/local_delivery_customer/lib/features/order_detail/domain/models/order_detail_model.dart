@@ -38,8 +38,6 @@ class OrderDetailModel extends OrderModel {
   const OrderDetailModel({
     required super.id,
     required super.userId,
-    required super.storeId,
-    required super.storeName,
     required super.status,
     required super.totalAmount,
     required super.deliveryFee,
@@ -62,8 +60,6 @@ class OrderDetailModel extends OrderModel {
       OrderDetailModel(
         id: map['id'] as String,
         userId: map['user_id'] as String,
-        storeId: map['store_id'] as String,
-        storeName: map['store_name'] as String? ?? '',
         status: map['status'] as String? ?? 'pending',
         totalAmount: (map['total_amount'] as num?)?.toDouble() ?? 0.0,
         deliveryFee: (map['delivery_fee'] as num?)?.toDouble() ?? 0.0,

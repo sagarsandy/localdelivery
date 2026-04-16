@@ -93,7 +93,10 @@ class _OrderCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(order.storeName, style: context.titleSmall),
+                    child: Text(
+                      'Order #${order.id.substring(0, 8).toUpperCase()}',
+                      style: context.titleSmall,
+                    ),
                   ),
                   LDStatusChip(status: _mapStatus(order.status)),
                 ],
@@ -101,22 +104,19 @@ class _OrderCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 '${order.itemCount} item${order.itemCount == 1 ? '' : 's'} · ₹${order.totalAmount.toStringAsFixed(0)}',
-                style: context.bodySmall
-                    .copyWith(color: LDColors.textSecondary),
+                style: context.bodySmall.copyWith(color: LDColors.textSecondary),
               ),
               const SizedBox(height: 4),
               Text(
                 DateFormat('dd MMM yyyy, hh:mm a').format(order.createdAt),
-                style: context.bodySmall
-                    .copyWith(color: LDColors.textSecondary),
+                style: context.bodySmall.copyWith(color: LDColors.textSecondary),
               ),
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   'View Details',
-                  style: context.bodySmall
-                      .copyWith(color: LDColors.primary),
+                  style: context.bodySmall.copyWith(color: LDColors.primary),
                 ),
               ),
             ],

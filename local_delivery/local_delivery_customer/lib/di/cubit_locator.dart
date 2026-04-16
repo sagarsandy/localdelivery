@@ -2,8 +2,6 @@ import 'package:get_it/get_it.dart';
 import '../features/auth/login/cubit/login_cubit.dart';
 import '../features/auth/otp/cubit/otp_cubit.dart';
 import '../features/home/cubit/home_cubit.dart';
-import '../features/store_detail/cubit/store_detail_cubit.dart';
-import '../features/product_detail/cubit/product_detail_cubit.dart';
 import '../features/cart/cubit/cart_cubit.dart';
 import '../features/checkout/cubit/checkout_cubit.dart';
 import '../features/checkout/domain/repositories/checkout_repository.dart';
@@ -19,9 +17,7 @@ Future<void> registerCubits(GetIt locator) async {
   // Factories — fresh instance per page
   locator.registerFactory(() => LoginCubit(locator()));
   locator.registerFactory(() => OtpCubit(locator(), locator(), locator()));
-  locator.registerFactory(() => HomeCubit(locator(), locator()));
-  locator.registerFactory(() => StoreDetailCubit(locator(), locator()));
-  locator.registerFactory(() => ProductDetailCubit(locator()));
+  locator.registerFactory(() => HomeCubit(locator(), locator(), locator()));
   locator.registerFactory(() => CheckoutCubit(locator<CheckoutRepository>()));
   locator.registerFactory(() => OrdersCubit(locator()));
   locator.registerFactory(() => OrderDetailCubit(locator()));

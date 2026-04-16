@@ -4,8 +4,6 @@ enum LDAppRoute {
   login,
   otp,
   home,
-  storeDetail,
-  productDetail,
   cart,
   checkout,
   orders,
@@ -22,8 +20,6 @@ extension LDAppRouteExt on LDAppRoute {
       case LDAppRoute.login: return '/login';
       case LDAppRoute.otp: return '/otp';
       case LDAppRoute.home: return '/home';
-      case LDAppRoute.storeDetail: return '/store/:storeId';
-      case LDAppRoute.productDetail: return '/product/:productId';
       case LDAppRoute.cart: return '/cart';
       case LDAppRoute.checkout: return '/checkout';
       case LDAppRoute.orders: return '/orders';

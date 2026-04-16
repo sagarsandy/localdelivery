@@ -40,7 +40,7 @@ class _CartView extends StatelessWidget {
             if (state.items.isEmpty) {
               return const LDEmptyStateWidget(
                 title: 'Your cart is empty',
-                subtitle: 'Browse stores and add items to get started.',
+                subtitle: 'Browse products and add items to get started.',
                 icon: Icons.shopping_cart_outlined,
               );
             }

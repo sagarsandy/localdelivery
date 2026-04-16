@@ -5,8 +5,6 @@ class CartItemModel extends Equatable {
     required this.productId,
     required this.productName,
     required this.productImage,
-    required this.storeId,
-    required this.storeName,
     required this.price,
     required this.quantity,
   });
@@ -14,8 +12,6 @@ class CartItemModel extends Equatable {
   final String productId;
   final String productName;
   final String productImage;
-  final String storeId;
-  final String storeName;
   final double price;
   final int quantity;
 
@@ -25,8 +21,6 @@ class CartItemModel extends Equatable {
     String? productId,
     String? productName,
     String? productImage,
-    String? storeId,
-    String? storeName,
     double? price,
     int? quantity,
   }) =>
@@ -34,8 +28,6 @@ class CartItemModel extends Equatable {
         productId: productId ?? this.productId,
         productName: productName ?? this.productName,
         productImage: productImage ?? this.productImage,
-        storeId: storeId ?? this.storeId,
-        storeName: storeName ?? this.storeName,
         price: price ?? this.price,
         quantity: quantity ?? this.quantity,
       );
@@ -44,8 +36,6 @@ class CartItemModel extends Equatable {
         productId: map['product_id'] as String,
         productName: map['product_name'] as String,
         productImage: map['product_image'] as String? ?? '',
-        storeId: map['store_id'] as String,
-        storeName: map['store_name'] as String? ?? '',
         price: (map['price'] as num).toDouble(),
         quantity: map['quantity'] as int,
       );
@@ -54,8 +44,6 @@ class CartItemModel extends Equatable {
         'product_id': productId,
         'product_name': productName,
         'product_image': productImage,
-        'store_id': storeId,
-        'store_name': storeName,
         'price': price,
         'quantity': quantity,
       };

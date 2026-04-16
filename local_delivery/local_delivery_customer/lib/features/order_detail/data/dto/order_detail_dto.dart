@@ -50,8 +50,6 @@ class OrderDetailDto {
   OrderDetailModel toDomain() => OrderDetailModel(
         id: order.id,
         userId: order.userId,
-        storeId: order.storeId,
-        storeName: order.storeName,
         status: order.status,
         totalAmount: order.totalAmount,
         deliveryFee: order.deliveryFee,

@@ -24,8 +24,6 @@ class FirebaseCheckoutSource implements CheckoutRemoteSource {
 
     batch.set(orderRef, {
       'user_id': userId,
-      'store_id': cartItems.first.storeId,
-      'store_name': cartItems.first.storeName,
       'status': 'pending',
       'total_amount': totalAmount,
       'delivery_fee': LDConstants.deliveryFeeBase,

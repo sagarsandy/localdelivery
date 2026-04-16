@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze:*)",
+      "Bash(cd /Users/sagar/AIWork/localdelivery/local_delivery/.claude/worktrees/bold-tereshkova/local_delivery/local_delivery_customer grep -r \"\\\\bstore\\\\b\\\\|\\\\bStore\\\\b\\\\|\\\\bstoreId\\\\b\\\\|\\\\bstoreName\\\\b\" lib/ --include=\"*.dart\" -l)"
+    ]
+  }
+}
