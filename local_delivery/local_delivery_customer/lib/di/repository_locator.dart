@@ -1,0 +1,47 @@
+import 'package:get_it/get_it.dart';
+import '../features/auth/data/repositories/auth_repository_impl.dart';
+import '../features/auth/domain/repositories/auth_repository.dart';
+import '../features/home/data/repositories/store_repository_impl.dart';
+import '../features/home/domain/repositories/store_repository.dart';
+import '../features/home/data/repositories/category_repository_impl.dart';
+import '../features/home/domain/repositories/category_repository.dart';
+import '../features/store_detail/data/repositories/store_detail_repository_impl.dart';
+import '../features/store_detail/domain/repositories/store_detail_repository.dart';
+import '../features/product_detail/data/repositories/product_repository_impl.dart';
+import '../features/product_detail/domain/repositories/product_repository.dart';
+import '../features/cart/data/repositories/cart_repository_impl.dart';
+import '../features/cart/domain/repositories/cart_repository.dart';
+import '../features/checkout/data/repositories/checkout_repository_impl.dart';
+import '../features/checkout/domain/repositories/checkout_repository.dart';
+import '../features/orders/data/repositories/orders_repository_impl.dart';
+import '../features/orders/domain/repositories/orders_repository.dart';
+import '../features/order_detail/data/repositories/order_detail_repository_impl.dart';
+import '../features/order_detail/domain/repositories/order_detail_repository.dart';
+import '../features/profile/data/repositories/profile_repository_impl.dart';
+import '../features/profile/domain/repositories/profile_repository.dart';
+import '../features/address/data/repositories/address_repository_impl.dart';
+import '../features/address/domain/repositories/address_repository.dart';
+import '../features/auth/data/sources/auth_remote_source.dart';
+import '../features/home/data/sources/store_remote_source.dart';
+import '../features/home/data/sources/category_remote_source.dart';
+import '../features/store_detail/data/sources/store_detail_remote_source.dart';
+import '../features/product_detail/data/sources/product_remote_source.dart';
+import '../features/checkout/data/sources/checkout_remote_source.dart';
+import '../features/orders/data/sources/orders_remote_source.dart';
+import '../features/order_detail/data/sources/order_detail_remote_source.dart';
+import '../features/profile/data/sources/profile_remote_source.dart';
+import '../features/address/data/sources/address_remote_source.dart';
+
+Future<void> registerRepositories(GetIt locator) async {
+  locator.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(locator<AuthRemoteSource>()));
+  locator.registerLazySingleton<StoreRepository>(() => StoreRepositoryImpl(locator<StoreRemoteSource>()));
+  locator.registerLazySingleton<CategoryRepository>(() => CategoryRepositoryImpl(locator<CategoryRemoteSource>()));
+  locator.registerLazySingleton<StoreDetailRepository>(() => StoreDetailRepositoryImpl(locator<StoreDetailRemoteSource>()));
+  locator.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(locator<ProductRemoteSource>()));
+  locator.registerLazySingleton<CartRepository>(() => CartRepositoryImpl());
+  locator.registerLazySingleton<CheckoutRepository>(() => CheckoutRepositoryImpl(locator<CheckoutRemoteSource>()));
+  locator.registerLazySingleton<OrdersRepository>(() => OrdersRepositoryImpl(locator<OrdersRemoteSource>()));
+  locator.registerLazySingleton<OrderDetailRepository>(() => OrderDetailRepositoryImpl(locator<OrderDetailRemoteSource>()));
+  locator.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(locator<ProfileRemoteSource>()));
+  locator.registerLazySingleton<AddressRepository>(() => AddressRepositoryImpl(locator<AddressRemoteSource>()));
+}

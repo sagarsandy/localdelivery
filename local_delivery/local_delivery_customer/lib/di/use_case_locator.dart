@@ -1,0 +1,47 @@
+import 'package:get_it/get_it.dart';
+import '../features/auth/domain/use_cases/sign_in_with_otp_use_case.dart';
+import '../features/auth/domain/use_cases/verify_otp_use_case.dart';
+import '../features/home/domain/use_cases/get_stores_use_case.dart';
+import '../features/home/domain/use_cases/get_categories_use_case.dart';
+import '../features/store_detail/domain/use_cases/get_store_detail_use_case.dart';
+import '../features/store_detail/domain/use_cases/get_store_products_use_case.dart';
+import '../features/product_detail/domain/use_cases/get_product_detail_use_case.dart';
+import '../features/cart/domain/use_cases/get_cart_use_case.dart';
+import '../features/cart/domain/use_cases/update_cart_use_case.dart';
+import '../features/orders/domain/use_cases/get_orders_use_case.dart';
+import '../features/order_detail/domain/use_cases/get_order_detail_use_case.dart';
+import '../features/profile/domain/use_cases/get_profile_use_case.dart';
+import '../features/address/domain/use_cases/get_addresses_use_case.dart';
+import '../features/address/domain/use_cases/save_address_use_case.dart';
+
+Future<void> registerUseCases(GetIt locator) async {
+  // Auth
+  locator.registerLazySingleton(() => SignInWithOtpUseCase(locator()));
+  locator.registerLazySingleton(() => VerifyOtpUseCase(locator()));
+
+  // Home
+  locator.registerLazySingleton(() => GetStoresUseCase(locator()));
+  locator.registerLazySingleton(() => GetCategoriesUseCase(locator()));
+
+  // Store Detail
+  locator.registerLazySingleton(() => GetStoreDetailUseCase(locator()));
+  locator.registerLazySingleton(() => GetStoreProductsUseCase(locator()));
+
+  // Product Detail
+  locator.registerLazySingleton(() => GetProductDetailUseCase(locator()));
+
+  // Cart
+  locator.registerLazySingleton(() => GetCartUseCase(locator()));
+  locator.registerLazySingleton(() => UpdateCartUseCase(locator()));
+
+  // Orders
+  locator.registerLazySingleton(() => GetOrdersUseCase(locator()));
+  locator.registerLazySingleton(() => GetOrderDetailUseCase(locator()));
+
+  // Profile
+  locator.registerLazySingleton(() => GetProfileUseCase(locator()));
+
+  // Address
+  locator.registerLazySingleton(() => GetAddressesUseCase(locator()));
+  locator.registerLazySingleton(() => SaveAddressUseCase(locator()));
+}

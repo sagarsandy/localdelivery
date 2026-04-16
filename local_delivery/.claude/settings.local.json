@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i '' 's/Future<Either<Failure, List<CategoryModel>>> call\\(\\)/Future<Either<Failure, List<CategoryModel>>> getCategories\\(\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/home/domain/use_cases/get_categories_use_case.dart)",
+      "Bash(sed -i '' 's/Future<Either<Failure, StoreModel>> call\\({required String storeId}\\)/Future<Either<Failure, StoreModel>> getDetail\\({required String storeId}\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/store_detail/domain/use_cases/get_store_detail_use_case.dart)",
+      "Bash(sed -i '' 's/Future<Either<Failure, List<ProductModel>>> call\\({/Future<Either<Failure, List<ProductModel>>> getProducts\\({/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/store_detail/domain/use_cases/get_store_products_use_case.dart)",
+      "Bash(sed -i '' 's/Future<Either<Failure, ProductModel>> call\\({required String productId}\\)/Future<Either<Failure, ProductModel>> getDetail\\({required String productId}\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/product_detail/domain/use_cases/get_product_detail_use_case.dart)",
+      "Bash(sed -i '' 's/Future<Either<Failure, List<OrderModel>>> call\\({required String userId}\\)/Future<Either<Failure, List<OrderModel>>> getOrders\\({required String userId}\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/orders/domain/use_cases/get_orders_use_case.dart)",
+      "Bash(sed -i '' 's/await _getCategoriesUseCase\\(\\)/await _getCategoriesUseCase.getCategories\\(\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/home/cubit/home_cubit.dart)",
+      "Bash(sed -i '' 's/await _getStoresUseCase\\(\\)/await _getStoresUseCase.getStores\\(\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/home/cubit/home_cubit.dart)",
+      "Bash(sed -i '' 's/await _getStoresUseCase\\(categoryId: categoryId\\)/await _getStoresUseCase.getStores\\(categoryId: categoryId\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/home/cubit/home_cubit.dart)",
+      "Bash(sed -i '' 's/await _getStoreDetailUseCase\\(storeId: storeId\\)/await _getStoreDetailUseCase.getDetail\\(storeId: storeId\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/store_detail/cubit/store_detail_cubit.dart)",
+      "Bash(sed -i '' 's/await _getStoreProductsUseCase\\(storeId: storeId\\)/await _getStoreProductsUseCase.getProducts\\(storeId: storeId\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/store_detail/cubit/store_detail_cubit.dart)",
+      "Bash(sed -i '' 's|import '\\\\''../../../../core/utils/firebase_service.dart'\\\\'';|import '\\\\''../../../../core/session/user_session.dart'\\\\'';|' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/__TRACKED_VAR__)",
+      "Bash(sed -i '' 's/FirebaseService\\\\.instance\\\\.currentUserId/UserSession.instance.userId/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/__TRACKED_VAR__)",
+      "Bash(sed -i '' 's/await FirebaseService\\\\.instance\\\\.signOut\\(\\);/await UserSession.instance.signOut\\(\\);/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/profile/cubit/profile_cubit.dart)",
+      "Bash(sed -i '' 's/await _getOrdersUseCase\\(userId: userId\\)/await _getOrdersUseCase.getOrders\\(userId: userId\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/orders/cubit/orders_cubit.dart)",
+      "Bash(sed -i '' 's/await _getProfileUseCase\\(userId: userId\\)/await _getProfileUseCase.getProfile\\(userId: userId\\)/' /Users/sagar/AIWork/local_delivery/local_delivery_customer/lib/features/profile/cubit/profile_cubit.dart)"
+    ]
+  }
+}
