@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
-import '../domain/models/store_model.dart';
 import '../domain/models/category_model.dart';
+import '../domain/models/subcategory_model.dart';
+import '../domain/models/trending_product_model.dart';
 
 abstract class HomeState extends Equatable {
   const HomeState();
@@ -9,31 +10,33 @@ abstract class HomeState extends Equatable {
 }
 
 class HomeInitial extends HomeState {}
+
 class HomeLoading extends HomeState {}
 
 class HomeLoaded extends HomeState {
   const HomeLoaded({
-    required this.stores,
     required this.categories,
-    this.selectedCategoryId,
+    required this.freshSubcategories,
+    required this.trendingProducts,
   });
-  final List<StoreModel> stores;
+
   final List<CategoryModel> categories;
-  final String? selectedCategoryId;
+  final List<SubcategoryModel> freshSubcategories;
+  final List<TrendingProductModel> trendingProducts;
 
   HomeLoaded copyWith({
-    List<StoreModel>? stores,
     List<CategoryModel>? categories,
-    String? selectedCategoryId,
+    List<SubcategoryModel>? freshSubcategories,
+    List<TrendingProductModel>? trendingProducts,
   }) =>
       HomeLoaded(
-        stores: stores ?? this.stores,
         categories: categories ?? this.categories,
-        selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
+        freshSubcategories: freshSubcategories ?? this.freshSubcategories,
+        trendingProducts: trendingProducts ?? this.trendingProducts,
       );
 
   @override
-  List<Object?> get props => [stores, categories, selectedCategoryId];
+  List<Object?> get props => [categories, freshSubcategories, trendingProducts];
 }
 
 class HomeError extends HomeState {

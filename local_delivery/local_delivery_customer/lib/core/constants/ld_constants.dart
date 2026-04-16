@@ -7,9 +7,9 @@ class LDConstants {
   static const String appVersion = '1.0.0';
 
   // Firestore collection names
-  static const String collectionStores = 'stores';
   static const String collectionProducts = 'products';
   static const String collectionCategories = 'categories';
+  static const String collectionSubcategories = 'subcategories';
   static const String collectionOrders = 'orders';
   static const String collectionOrderItems = 'order_items';
   static const String collectionAddresses = 'addresses';
@@ -17,7 +17,6 @@ class LDConstants {
   static const String collectionReviews = 'reviews';
 
   // Storage bucket names (Firebase Storage)
-  static const String bucketStoreImages = 'store-images';
   static const String bucketProductImages = 'product-images';
   static const String bucketUserAvatars = 'user-avatars';
 

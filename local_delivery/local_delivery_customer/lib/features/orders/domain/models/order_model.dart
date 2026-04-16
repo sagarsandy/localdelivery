@@ -4,8 +4,6 @@ class OrderModel extends Equatable {
   const OrderModel({
     required this.id,
     required this.userId,
-    required this.storeId,
-    required this.storeName,
     required this.status,
     required this.totalAmount,
     required this.deliveryFee,
@@ -15,8 +13,6 @@ class OrderModel extends Equatable {
 
   final String id;
   final String userId;
-  final String storeId;
-  final String storeName;
   final String status;
   final double totalAmount;
   final double deliveryFee;
@@ -26,8 +22,6 @@ class OrderModel extends Equatable {
   factory OrderModel.fromMap(Map<String, dynamic> map) => OrderModel(
         id: map['id'] as String,
         userId: map['user_id'] as String,
-        storeId: map['store_id'] as String,
-        storeName: map['store_name'] as String? ?? '',
         status: map['status'] as String? ?? 'pending',
         totalAmount: (map['total_amount'] as num?)?.toDouble() ?? 0.0,
         deliveryFee: (map['delivery_fee'] as num?)?.toDouble() ?? 0.0,
@@ -40,8 +34,6 @@ class OrderModel extends Equatable {
   Map<String, dynamic> toMap() => {
         'id': id,
         'user_id': userId,
-        'store_id': storeId,
-        'store_name': storeName,
         'status': status,
         'total_amount': totalAmount,
         'delivery_fee': deliveryFee,

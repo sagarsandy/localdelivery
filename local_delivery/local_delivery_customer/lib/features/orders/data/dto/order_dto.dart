@@ -6,8 +6,6 @@ class OrderDto {
   const OrderDto({
     required this.id,
     required this.userId,
-    required this.storeId,
-    required this.storeName,
     required this.status,
     required this.totalAmount,
     required this.deliveryFee,
@@ -17,8 +15,6 @@ class OrderDto {
 
   final String id;
   final String userId;
-  final String storeId;
-  final String storeName;
   final String status;
   final double totalAmount;
   final double deliveryFee;
@@ -30,8 +26,6 @@ class OrderDto {
     return OrderDto(
       id: doc.id,
       userId: data['user_id'] as String,
-      storeId: data['store_id'] as String,
-      storeName: data['store_name'] as String? ?? '',
       status: data['status'] as String? ?? 'pending',
       totalAmount: (data['total_amount'] as num?)?.toDouble() ?? 0.0,
       deliveryFee: (data['delivery_fee'] as num?)?.toDouble() ?? 0.0,
@@ -45,8 +39,6 @@ class OrderDto {
     return OrderDto(
       id: doc.id,
       userId: data['user_id'] as String,
-      storeId: data['store_id'] as String,
-      storeName: data['store_name'] as String? ?? '',
       status: data['status'] as String? ?? 'pending',
       totalAmount: (data['total_amount'] as num?)?.toDouble() ?? 0.0,
       deliveryFee: (data['delivery_fee'] as num?)?.toDouble() ?? 0.0,
@@ -58,8 +50,6 @@ class OrderDto {
   OrderModel toDomain() => OrderModel(
         id: id,
         userId: userId,
-        storeId: storeId,
-        storeName: storeName,
         status: status,
         totalAmount: totalAmount,
         deliveryFee: deliveryFee,
