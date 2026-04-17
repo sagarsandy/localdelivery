@@ -16,27 +16,29 @@ class HomeLoading extends HomeState {}
 class HomeLoaded extends HomeState {
   const HomeLoaded({
     required this.categories,
-    required this.freshSubcategories,
+    required this.subcategoriesByCategory,
     required this.trendingProducts,
   });
 
   final List<CategoryModel> categories;
-  final List<SubcategoryModel> freshSubcategories;
+  /// Key = category name lowercased (e.g. 'fresh', 'drinks')
+  final Map<String, List<SubcategoryModel>> subcategoriesByCategory;
   final List<TrendingProductModel> trendingProducts;
 
   HomeLoaded copyWith({
     List<CategoryModel>? categories,
-    List<SubcategoryModel>? freshSubcategories,
+    Map<String, List<SubcategoryModel>>? subcategoriesByCategory,
     List<TrendingProductModel>? trendingProducts,
   }) =>
       HomeLoaded(
         categories: categories ?? this.categories,
-        freshSubcategories: freshSubcategories ?? this.freshSubcategories,
+        subcategoriesByCategory:
+            subcategoriesByCategory ?? this.subcategoriesByCategory,
         trendingProducts: trendingProducts ?? this.trendingProducts,
       );
 
   @override
-  List<Object?> get props => [categories, freshSubcategories, trendingProducts];
+  List<Object?> get props => [categories, subcategoriesByCategory, trendingProducts];
 }
 
 class HomeError extends HomeState {

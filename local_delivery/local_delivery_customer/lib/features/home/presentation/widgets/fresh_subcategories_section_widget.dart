@@ -3,8 +3,8 @@ import 'package:local_delivery_ui/local_delivery_ui.dart';
 
 import '../../domain/models/subcategory_model.dart';
 
-class FreshSubcategoriesSection extends StatelessWidget {
-  const FreshSubcategoriesSection({super.key, required this.subcategories});
+class FreshSubcategoriesSectionWidget extends StatelessWidget {
+  const FreshSubcategoriesSectionWidget({super.key, required this.subcategories});
 
   final List<SubcategoryModel> subcategories;
 
@@ -25,15 +25,15 @@ class FreshSubcategoriesSection extends StatelessWidget {
         ),
         itemCount: subcategories.length > 6 ? 6 : subcategories.length,
         itemBuilder: (context, index) {
-          return _SubcategoryTile(subcategory: subcategories[index]);
+          return _SubcategoryTileWidget(subcategory: subcategories[index]);
         },
       ),
     );
   }
 }
 
-class _SubcategoryTile extends StatelessWidget {
-  const _SubcategoryTile({required this.subcategory});
+class _SubcategoryTileWidget extends StatelessWidget {
+  const _SubcategoryTileWidget({required this.subcategory});
   final SubcategoryModel subcategory;
 
   @override
@@ -55,7 +55,8 @@ class _SubcategoryTile extends StatelessWidget {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
               child: LDNetworkImage(
                 url: subcategory.imageUrl,
                 width: double.infinity,

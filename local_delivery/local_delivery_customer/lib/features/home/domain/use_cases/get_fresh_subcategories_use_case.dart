@@ -3,8 +3,8 @@ import '../../../../core/utils/failure.dart';
 import '../models/subcategory_model.dart';
 import '../repositories/subcategory_repository.dart';
 
-class GetFreshSubcategoriesUseCase {
-  const GetFreshSubcategoriesUseCase(this._repository);
+class GetSubcategoriesUseCase {
+  const GetSubcategoriesUseCase(this._repository);
   final SubcategoryRepository _repository;
 
   Future<Either<Failure, List<SubcategoryModel>>> getSubcategories({required String categoryId}) =>

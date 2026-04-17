@@ -43,6 +43,7 @@ class _OtpPageState extends State<OtpPage> {
   }
 
   void _onPrimaryTap(BuildContext context) {
+    FocusScope.of(context).unfocus();
     if (_showNameSection) {
       // Phase 2: save name and continue
       context.read<OtpCubit>().saveName(name: _nameController.text.trim());

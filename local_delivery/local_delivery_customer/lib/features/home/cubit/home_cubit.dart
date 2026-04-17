@@ -11,28 +11,28 @@ import 'home_state.dart';
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit(
     this._getCategoriesUseCase,
-    this._getFreshSubcategoriesUseCase,
+    this._getSubcategoriesUseCase,
     this._getTrendingProductsUseCase,
   ) : super(HomeInitial());
 
   final GetCategoriesUseCase _getCategoriesUseCase;
-  final GetFreshSubcategoriesUseCase _getFreshSubcategoriesUseCase;
+  final GetSubcategoriesUseCase _getSubcategoriesUseCase;
   final GetTrendingProductsUseCase _getTrendingProductsUseCase;
 
   Future<void> loadHome() async {
     emit(HomeLoading());
 
-    final categoriesResult = await _getCategoriesUseCase.getCategories();
-    final trendingResult =
-        await _getTrendingProductsUseCase.getTrendingProducts();
-    final freshCategoriesResult =
-        await _getFreshSubcategoriesUseCase.getSubcategories(
-      categoryId: "fresh",
-    );
+    // Fetch categories and trending in parallel
+    final results = await Future.wait([
+      _getCategoriesUseCase.getCategories(),
+      _getTrendingProductsUseCase.getTrendingProducts(),
+    ]);
+
+    final categoriesResult = results[0];
+    final trendingResult = results[1];
 
     List<CategoryModel> categories = [];
     List<TrendingProductModel> trending = [];
-    List<SubcategoryModel> freshSubcategories = [];
 
     final categoriesFailure = categoriesResult.fold((f) => f, (_) => null);
     if (categoriesFailure != null) {
@@ -46,20 +46,32 @@ class HomeCubit extends Cubit<HomeState> {
       return;
     }
 
-    final freshCategoriesFailure =
-        freshCategoriesResult.fold((f) => f, (_) => null);
-    if (freshCategoriesFailure != null) {
-      emit(HomeError(freshCategoriesFailure.message));
-      return;
-    }
+    categoriesResult.fold(
+        (_) {}, (data) => categories = data as List<CategoryModel>);
+    trendingResult.fold(
+        (_) {}, (data) => trending = data as List<TrendingProductModel>);
 
-    categoriesResult.fold((_) {}, (data) => categories = data);
-    trendingResult.fold((_) {}, (data) => trending = data);
-    freshCategoriesResult.fold((_) {}, (data) => freshSubcategories = data);
+    // Fetch subcategories for each category in parallel — silently skip failures
+    final subcategoryFutures = categories.map(
+      (category) => _getSubcategoriesUseCase
+          .getSubcategories(categoryId: category.name)
+          .then((result) => MapEntry(
+                category.name.toLowerCase(),
+                result.fold((_) => <SubcategoryModel>[], (data) => data),
+              )),
+    );
+
+    final subcategoryEntries = await Future.wait(subcategoryFutures);
+
+    // Build map; exclude categories with zero subcategories
+    final subcategoriesByCategory =
+        Map<String, List<SubcategoryModel>>.fromEntries(
+      subcategoryEntries.where((e) => e.value.isNotEmpty),
+    );
 
     emit(HomeLoaded(
       categories: categories,
-      freshSubcategories: freshSubcategories,
+      subcategoriesByCategory: subcategoriesByCategory,
       trendingProducts: trending,
     ));
   }

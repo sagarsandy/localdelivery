@@ -3,8 +3,8 @@ import 'package:local_delivery_ui/local_delivery_ui.dart';
 
 import '../../domain/models/trending_product_model.dart';
 
-class TrendingItemsSection extends StatelessWidget {
-  const TrendingItemsSection({super.key, required this.products});
+class TrendingItemsSectionWidget extends StatelessWidget {
+  const TrendingItemsSectionWidget({super.key, required this.products});
 
   final List<TrendingProductModel> products;
 
@@ -29,15 +29,15 @@ class TrendingItemsSection extends StatelessWidget {
         itemCount: products.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          return _TrendingProductCard(product: products[index]);
+          return _TrendingProductCardWidget(product: products[index]);
         },
       ),
     );
   }
 }
 
-class _TrendingProductCard extends StatelessWidget {
-  const _TrendingProductCard({required this.product});
+class _TrendingProductCardWidget extends StatelessWidget {
+  const _TrendingProductCardWidget({required this.product});
   final TrendingProductModel product;
 
   @override
@@ -60,7 +60,8 @@ class _TrendingProductCard extends StatelessWidget {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(14)),
               child: LDNetworkImage(
                 url: product.imageUrl,
                 width: double.infinity,

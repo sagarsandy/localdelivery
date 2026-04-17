@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
 import '../theme/ld_colors.dart';
 
 /// Cached network image with loading and error states.
@@ -49,9 +50,12 @@ class LDNetworkImage extends StatelessWidget {
             width: width,
             height: height,
             color: LDColors.surfaceVariant,
-            child: const Icon(
-              Icons.image_not_supported_outlined,
-              color: LDColors.textDisabled,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: Image.asset(
+                "assets/brand_logo.png",
+                fit: BoxFit.cover,
+              ),
             ),
           ),
     );

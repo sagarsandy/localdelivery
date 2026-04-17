@@ -3,8 +3,8 @@ import 'package:local_delivery_ui/local_delivery_ui.dart';
 
 import '../../domain/models/category_model.dart';
 
-class CategoriesSection extends StatelessWidget {
-  const CategoriesSection({super.key, required this.categories});
+class CategoriesSectionWidget extends StatelessWidget {
+  const CategoriesSectionWidget({super.key, required this.categories});
 
   final List<CategoryModel> categories;
 
@@ -25,15 +25,15 @@ class CategoriesSection extends StatelessWidget {
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          return _CategoryCard(category: categories[index]);
+          return _CategoryCardWidget(category: categories[index]);
         },
       ),
     );
   }
 }
 
-class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.category});
+class _CategoryCardWidget extends StatelessWidget {
+  const _CategoryCardWidget({required this.category});
   final CategoryModel category;
 
   @override

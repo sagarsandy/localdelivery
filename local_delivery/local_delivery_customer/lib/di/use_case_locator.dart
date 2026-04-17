@@ -19,7 +19,7 @@ Future<void> registerUseCases(GetIt locator) async {
 
   // Home
   locator.registerLazySingleton(() => GetCategoriesUseCase(locator()));
-  locator.registerLazySingleton(() => GetFreshSubcategoriesUseCase(locator()));
+  locator.registerLazySingleton(() => GetSubcategoriesUseCase(locator()));
   locator.registerLazySingleton(() => GetTrendingProductsUseCase(locator()));
 
   // Cart

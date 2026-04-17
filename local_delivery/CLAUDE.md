@@ -61,6 +61,98 @@ Non-Firebase app config (pagination, thresholds, local storage keys) lives in `l
 
 ---
 
+## Domain Concepts
+
+The app has **no store/vendor concept**. The product catalogue is structured as:
+
+```
+categories → subcategories → products
+```
+
+- A **category** is a top-level grouping (e.g. Fresh, Grocery, Electronics).
+- A **subcategory** belongs to one category (e.g. Fruits, Veggies under Fresh).
+- A **product** belongs to a category and subcategory.
+
+Never introduce a "store" layer. Cart, checkout, and orders operate directly on products.
+
+---
+
+## Firestore Collections & Field Names
+
+Always use the constants in `lib/core/data/remote/firebase/firebase_collections.dart` for collection names. Never use string literals.
+
+### `categories`
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | String | Display name |
+| `image` | String | Image URL |
+
+### `subcategories`
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | String | Display name |
+| `image` | String | Image URL |
+| `category` | String | Parent category document ID |
+
+### `products`
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | String | Display name |
+| `image` | String | Image URL |
+| `category` | String | Parent category document ID |
+| `subcategory` | String | Parent subcategory document ID |
+| `price` | double | Unit price |
+| `quantity` | int | Available quantity |
+| `units` | String | Unit label (e.g. "kg", "pcs") |
+| `isAvailable` | bool | Whether listed for sale |
+| `inStock` | bool | Whether currently in stock |
+
+### `orders`
+| Field | Type | Notes |
+|-------|------|-------|
+| `user_id` | String | |
+| `status` | String | pending / confirmed / out_for_delivery / delivered / cancelled |
+| `total_amount` | double | |
+| `delivery_fee` | double | |
+| `address_id` | String | |
+| `payment_method` | String | |
+| `item_count` | int | |
+| `created_at` | Timestamp | |
+
+### `order_items`
+| Field | Type | Notes |
+|-------|------|-------|
+| `order_id` | String | |
+| `product_id` | String | |
+| `name` | String | Snapshot of product title at time of order |
+| `price` | double | |
+| `quantity` | int | |
+
+### `users`
+| Field | Type | Notes |
+|-------|------|-------|
+| `phone` | String | |
+| `name` | String | |
+| `email` | String | Optional |
+| `avatar_url` | String | Optional |
+| `created_at` | Timestamp | |
+
+### `addresses`
+| Field | Type | Notes |
+|-------|------|-------|
+| `user_id` | String | |
+| `label` | String | Home / Work / Other |
+| `address_line1` | String | |
+| `address_line2` | String | Optional |
+| `city` | String | |
+| `pincode` | String | |
+| `is_default` | bool | |
+
+### DTO field mapping rule
+Firestore uses camelCase (`isAvailable`, `inStock`) for product booleans and `snake_case` for order/address fields. Always check the table above before writing a DTO — never guess field names.
+
+---
+
 ## Clean Architecture — Feature Structure
 
 Every feature in `local_delivery_customer/lib/features/` follows this exact layout:
@@ -99,7 +191,40 @@ features/
 - **Firebase sources** throw exceptions on error; they never return `Either`.
 - **Repository impls** catch exceptions from sources and wrap results in `Either<Failure, T>`. They also convert DTOs to domain models via `dto.toDomain()`.
 - **Cubits** must never import Firebase directly. Use `UserSession.instance` for user identity (userId, isLoggedIn), and use cases for all data operations.
-- **Use case methods** must have descriptive names — never `call()`. Examples: `getStores()`, `placeOrder()`, `sendOtp()`.
+- **Use case methods** must have descriptive names — never `call()`. Examples: `getCategories()`, `placeOrder()`, `sendOtp()`.
+
+---
+
+## Active Features
+
+| Feature | Path | Description |
+|---------|------|-------------|
+| auth | `features/auth/` | Phone OTP login (login + otp screens) |
+| home | `features/home/` | Home screen: Fresh Picks, Trending Items, Categories |
+| cart | `features/cart/` | Persistent local cart (singleton CartCubit) |
+| checkout | `features/checkout/` | Address + payment method + place order |
+| orders | `features/orders/` | Order history list |
+| order_detail | `features/order_detail/` | Full order breakdown with status timeline |
+| profile | `features/profile/` | User info, logout, links to orders/addresses |
+| address | `features/address/` | Address list + add address form |
+
+### Home feature data models
+
+The home screen loads three independent datasets:
+
+- **CategoryModel** — `id`, `name`, `imageUrl` — all categories from Firestore
+- **SubcategoryModel** — `id`, `name`, `imageUrl`, `categoryId` — subcategories filtered by the "Fresh" category
+- **TrendingProductModel** — `id`, `name`, `imageUrl`, `price`, `quantity`, `units`, `isAvailable`, `inStock` — random in-stock products
+
+`HomeCubit.loadHome()` fetches categories and trending products in parallel, then finds the category named "Fresh" (case-insensitive) and fetches its subcategories.
+
+### Cart model
+
+`CartItemModel` fields: `productId`, `productName`, `productImage`, `price`, `quantity`. No store/vendor fields.
+
+### Order model
+
+`OrderModel` fields: `id`, `userId`, `status`, `totalAmount`, `deliveryFee`, `createdAt`, `itemCount`. No store/vendor fields.
 
 ---
 
@@ -120,13 +245,28 @@ To add a new feature: register its source in `data_source_locator.dart`, repo in
 
 Routes are defined in `lib/app/router/`:
 
-- `ld_app_routes.dart` — `LDAppRoute` enum with `.path` extension (e.g., `/store/:storeId`)
+- `ld_app_routes.dart` — `LDAppRoute` enum with `.path` extension
 - `ld_page_route.dart` — `LDPageRoute` abstract class + two transition builders:
   - `buildPageWithSlideTransition()` — 280ms slide from right (use for most push navigations)
   - `buildPageWithNoTransition()` — instant (use for tab roots like Home, Login)
 - `ld_app_router.dart` — central `GoRouter` config; auth redirect uses `UserSession.instance.isLoggedIn`
 
-Each feature's route class implements `LDPageRoute` and provides a single `GoRoute get route`. Exception: `AddressPageRoute` returns `List<GoRoute> get routes` (covers `/addresses` and `/addresses/add`).
+### Active routes
+
+| Enum | Path | Screen |
+|------|------|--------|
+| `LDAppRoute.login` | `/login` | Login page |
+| `LDAppRoute.otp` | `/otp` | OTP verification |
+| `LDAppRoute.home` | `/home` | Home screen |
+| `LDAppRoute.cart` | `/cart` | Cart |
+| `LDAppRoute.checkout` | `/checkout` | Checkout |
+| `LDAppRoute.orders` | `/orders` | Order history |
+| `LDAppRoute.orderDetail` | `/order/:orderId` | Order detail |
+| `LDAppRoute.profile` | `/profile` | Profile |
+| `LDAppRoute.addresses` | `/addresses` | Address list |
+| `LDAppRoute.addAddress` | `/addresses/add` | Add address form |
+
+Each feature's route class implements `LDPageRoute` and provides a single `GoRoute get route`. Exception: `AddressPageRoute` returns `List<GoRoute> get routes`.
 
 Navigate with GoRouter: `context.push('/path')`, `context.go('/path')`, `context.pop()`.
 
@@ -206,6 +346,8 @@ Import with: `import 'package:local_delivery_ui/local_delivery_ui.dart';`
 
 **Text styles:** Use `context.titleLarge`, `context.bodyMedium`, etc. (extension on `BuildContext` from `ld_typography.dart`) rather than `Theme.of(context).textTheme.bodyMedium`.
 
+Available text style getters: `displayLarge`, `displayMedium`, `displaySmall`, `headlineLarge`, `headlineMedium`, `headlineSmall`, `titleLarge`, `titleMedium`, `titleSmall`, `bodyLarge`, `bodyMedium`, `bodySmall`, `labelLarge`, `labelMedium`, `labelSmall`.
+
 **Key widgets:**
 - `LDButton` / `LDOutlineButton` / `LDTextButton` — primary actions
 - `LDTextField` — all text inputs
@@ -214,8 +356,9 @@ Import with: `import 'package:local_delivery_ui/local_delivery_ui.dart';`
 - `LDLoadingWidget` — full-screen or inline spinner
 - `LDErrorWidget` — error state with optional retry
 - `LDEmptyStateWidget` — empty list state
-- `LDToast.show(context, message, type)` — snackbar notifications
+- `LDToast.show(context, message, type)` — snackbar; types: `LDToastType.success`, `.error`, `.warning`, `.info`
 - `LDStatusChip` — order status badge (uses `LDOrderStatus` enum)
+- `LDCartQuantityButton`, `LDDashedDivider`
 
 **Theme:** Applied in `LDTheme.light` — use `MaterialApp.router(theme: LDTheme.light)`.
 
@@ -224,6 +367,7 @@ Import with: `import 'package:local_delivery_ui/local_delivery_ui.dart';`
 ## Code Style Conventions
 
 - **Prefix:** All shared UI classes use `LD` prefix. App-specific classes have no prefix.
+- **No store concept:** Never add store/vendor/merchant models, routes, or UI. The domain is categories → subcategories → products.
 - **Widget decomposition:** Pages should delegate to small, single-purpose widget files in `presentation/widgets/`. Avoid long build methods in page files.
 - **Imports:** Use relative imports within a package. Use package imports (`package:local_delivery_ui/...`) for the shared UI package.
 - **Domain models:** Extend `Equatable` and implement `props`. No Firebase imports. Use `fromMap`/`toMap` only if needed for local storage — Firestore parsing belongs in DTOs.

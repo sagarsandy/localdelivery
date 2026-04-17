@@ -46,6 +46,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _sendOtp(BuildContext context) {
+    FocusScope.of(context).unfocus();
     context.read<LoginCubit>().sendOtp(phone: '+91${_phoneController.text.trim()}');
   }
 
