@@ -26,7 +26,7 @@ class FirebaseCheckoutSource implements CheckoutRemoteSource {
       'user_id': userId,
       'status': 'pending',
       'total_amount': totalAmount,
-      'delivery_fee': LDConstants.deliveryFeeBase,
+      'delivery_fee': LDConstants.deliveryCharge,
       'address_id': addressId,
       'payment_method': paymentMethod,
       'item_count': cartItems.length,

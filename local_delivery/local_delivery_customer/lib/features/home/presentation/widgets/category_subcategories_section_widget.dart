@@ -14,12 +14,14 @@ class CategorySubcategoriesSectionWidget extends StatelessWidget {
     required this.categoryName,
     required this.subcategories,
     required this.onViewAll,
+    required this.onSubcategoryTap,
     required this.index,
   });
 
   final String categoryName;
   final List<SubcategoryModel> subcategories;
   final VoidCallback onViewAll;
+  final void Function(SubcategoryModel) onSubcategoryTap;
 
   /// Alternates layout style: even → horizontal cards, odd → circular chips.
   final int index;
@@ -79,10 +81,14 @@ class CategorySubcategoriesSectionWidget extends StatelessWidget {
 
         // ── Content — alternates by section index
         switch (style) {
-          _SectionStyle.horizontalScroll =>
-            _HorizontalScrollSectionWidget(items: displayItems),
-          _SectionStyle.circularChips =>
-            _CircularChipsSectionWidget(items: displayItems),
+          _SectionStyle.horizontalScroll => _HorizontalScrollSectionWidget(
+              items: displayItems,
+              onTap: onSubcategoryTap,
+            ),
+          _SectionStyle.circularChips => _CircularChipsSectionWidget(
+              items: displayItems,
+              onTap: onSubcategoryTap,
+            ),
         },
 
         const SizedBox(height: 4),
@@ -96,8 +102,12 @@ class CategorySubcategoriesSectionWidget extends StatelessWidget {
 // Clean white card with 1px green border, black title text
 // ─────────────────────────────────────────────────────────────
 class _HorizontalScrollSectionWidget extends StatelessWidget {
-  const _HorizontalScrollSectionWidget({required this.items});
+  const _HorizontalScrollSectionWidget({
+    required this.items,
+    required this.onTap,
+  });
   final List<SubcategoryModel> items;
+  final void Function(SubcategoryModel) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +120,9 @@ class _HorizontalScrollSectionWidget extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final sub = items[index];
-          return Container(
+          return GestureDetector(
+            onTap: () => onTap(sub),
+            child: Container(
             width: 110,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -155,7 +167,8 @@ class _HorizontalScrollSectionWidget extends StatelessWidget {
                 ),
               ],
             ),
-          );
+          ),   // Container
+          );   // GestureDetector
         },
       ),
     );
@@ -167,8 +180,12 @@ class _HorizontalScrollSectionWidget extends StatelessWidget {
 // 82px circle (+20%), 1px green border, black title text
 // ─────────────────────────────────────────────────────────────
 class _CircularChipsSectionWidget extends StatelessWidget {
-  const _CircularChipsSectionWidget({required this.items});
+  const _CircularChipsSectionWidget({
+    required this.items,
+    required this.onTap,
+  });
   final List<SubcategoryModel> items;
+  final void Function(SubcategoryModel) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +198,9 @@ class _CircularChipsSectionWidget extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final sub = items[index];
-          return SizedBox(
+          return GestureDetector(
+            onTap: () => onTap(sub),
+            child: SizedBox(
             width: 90,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -222,7 +241,8 @@ class _CircularChipsSectionWidget extends StatelessWidget {
                 ),
               ],
             ),
-          );
+          ),   // SizedBox
+          );   // GestureDetector
         },
       ),
     );

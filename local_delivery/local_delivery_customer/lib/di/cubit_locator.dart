@@ -9,6 +9,7 @@ import '../features/orders/cubit/orders_cubit.dart';
 import '../features/order_detail/cubit/order_detail_cubit.dart';
 import '../features/profile/cubit/profile_cubit.dart';
 import '../features/address/cubit/address_cubit.dart';
+import '../features/product_listing/cubit/product_listing_cubit.dart';
 
 Future<void> registerCubits(GetIt locator) async {
   // Singletons — shared state across the app
@@ -23,4 +24,5 @@ Future<void> registerCubits(GetIt locator) async {
   locator.registerFactory(() => OrderDetailCubit(locator()));
   locator.registerFactory(() => ProfileCubit(locator()));
   locator.registerFactory(() => AddressCubit(locator(), locator()));
+  locator.registerFactory(() => ProductListingCubit(locator()));
 }

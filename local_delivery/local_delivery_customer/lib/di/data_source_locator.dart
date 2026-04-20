@@ -17,6 +17,8 @@ import '../features/address/data/sources/address_remote_source.dart';
 import '../features/address/data/sources/firebase/firebase_address_source.dart';
 import '../features/checkout/data/sources/checkout_remote_source.dart';
 import '../features/checkout/data/sources/firebase/firebase_checkout_source.dart';
+import '../features/product_listing/data/sources/product_remote_source.dart';
+import '../features/product_listing/data/sources/firebase/firebase_product_source.dart';
 
 Future<void> registerDataSources(GetIt locator) async {
   locator.registerLazySingleton<AuthRemoteSource>(() => FirebaseAuthSource());
@@ -28,4 +30,5 @@ Future<void> registerDataSources(GetIt locator) async {
   locator.registerLazySingleton<ProfileRemoteSource>(() => FirebaseProfileSource());
   locator.registerLazySingleton<AddressRemoteSource>(() => FirebaseAddressSource());
   locator.registerLazySingleton<CheckoutRemoteSource>(() => FirebaseCheckoutSource());
+  locator.registerLazySingleton<ProductRemoteSource>(() => FirebaseProductSource());
 }

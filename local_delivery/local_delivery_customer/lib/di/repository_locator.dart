@@ -28,6 +28,9 @@ import '../features/orders/data/sources/orders_remote_source.dart';
 import '../features/order_detail/data/sources/order_detail_remote_source.dart';
 import '../features/profile/data/sources/profile_remote_source.dart';
 import '../features/address/data/sources/address_remote_source.dart';
+import '../features/product_listing/data/repositories/product_repository_impl.dart';
+import '../features/product_listing/domain/repositories/product_repository.dart';
+import '../features/product_listing/data/sources/product_remote_source.dart';
 
 Future<void> registerRepositories(GetIt locator) async {
   locator.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(locator<AuthRemoteSource>()));
@@ -40,4 +43,5 @@ Future<void> registerRepositories(GetIt locator) async {
   locator.registerLazySingleton<OrderDetailRepository>(() => OrderDetailRepositoryImpl(locator<OrderDetailRemoteSource>()));
   locator.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(locator<ProfileRemoteSource>()));
   locator.registerLazySingleton<AddressRepository>(() => AddressRepositoryImpl(locator<AddressRemoteSource>()));
+  locator.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(locator<ProductRemoteSource>()));
 }

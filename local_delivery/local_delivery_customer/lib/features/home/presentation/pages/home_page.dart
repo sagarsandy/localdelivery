@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:local_delivery_ui/local_delivery_ui.dart';
 
+import '../../../../app/router/ld_app_routes.dart';
 import '../../../../di/service_locator.dart';
 import '../../cubit/home_cubit.dart';
 import '../../cubit/home_state.dart';
+import '../../domain/models/subcategory_model.dart';
 import '../widgets/categories_section_widget.dart';
 import '../widgets/category_subcategories_section_widget.dart';
 import '../widgets/section_header_widget.dart';
@@ -52,6 +55,13 @@ class _HomeContentWidget extends StatelessWidget {
 
   void _showComingSoon(BuildContext context) {
     LDToast.show(context, message: 'Coming soon!', type: LDToastType.info);
+  }
+
+  void _navigateToProducts(BuildContext context, SubcategoryModel subcategory) {
+    context.push(
+      '${LDAppRoute.productListing.path.replaceFirst(':subcategoryId', subcategory.name)}'
+      '?name=${Uri.encodeComponent(subcategory.name)}',
+    );
   }
 
   @override
@@ -131,6 +141,7 @@ class _HomeContentWidget extends StatelessWidget {
               categoryName: categorySections[i].displayName,
               subcategories: categorySections[i].subcategories,
               onViewAll: () => _showComingSoon(context),
+              onSubcategoryTap: (sub) => _navigateToProducts(context, sub),
               index: i,
             ),
           ),
@@ -151,7 +162,6 @@ class _HomeContentWidget extends StatelessWidget {
       ],
     );
   }
-
 }
 
 class _HomeHeaderWidget extends StatelessWidget {
@@ -192,8 +202,8 @@ class _HomeHeaderWidget extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '123 Green Valley, Bangalore',
-                    style:
-                        context.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                    style: context.bodyMedium
+                        .copyWith(fontWeight: FontWeight.w600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

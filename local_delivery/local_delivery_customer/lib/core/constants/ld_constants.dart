@@ -27,7 +27,10 @@ class LDConstants {
   static const String keyUserId = 'user_id';
   static const String keySelectedAddressId = 'selected_address_id';
 
+  // Order charges — change these values to update fees across the app
+  static const double deliveryCharge = 10.0;
+  static const double platformFee = 10.0;
+
   // Misc
-  static const double deliveryFeeBase = 30.0;
   static const double freeDeliveryThreshold = 299.0;
 }

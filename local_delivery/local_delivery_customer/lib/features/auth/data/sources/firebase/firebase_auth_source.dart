@@ -75,10 +75,20 @@ class FirebaseAuthSource implements AuthRemoteSource {
     required String userId,
     required String name,
   }) async {
+    // Persist name + phone together so the users document is fully populated
+    // on first sign-in. merge:true keeps any other existing fields intact.
+    final phone = _auth.currentUser?.phoneNumber ?? '';
     await _firestore
         .collection(FirebaseCollections.users)
         .doc(userId)
-        .set({'name': name.trim()}, SetOptions(merge: true));
+        .set(
+          {
+            'name': name.trim(),
+            'phone': phone,
+            'created_at': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true),
+        );
   }
 
   @override

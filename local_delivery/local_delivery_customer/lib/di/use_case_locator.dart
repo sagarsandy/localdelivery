@@ -11,6 +11,7 @@ import '../features/order_detail/domain/use_cases/get_order_detail_use_case.dart
 import '../features/profile/domain/use_cases/get_profile_use_case.dart';
 import '../features/address/domain/use_cases/get_addresses_use_case.dart';
 import '../features/address/domain/use_cases/save_address_use_case.dart';
+import '../features/product_listing/domain/use_cases/get_products_use_case.dart';
 
 Future<void> registerUseCases(GetIt locator) async {
   // Auth
@@ -36,4 +37,7 @@ Future<void> registerUseCases(GetIt locator) async {
   // Address
   locator.registerLazySingleton(() => GetAddressesUseCase(locator()));
   locator.registerLazySingleton(() => SaveAddressUseCase(locator()));
+
+  // Product listing
+  locator.registerLazySingleton(() => GetProductsUseCase(locator()));
 }
