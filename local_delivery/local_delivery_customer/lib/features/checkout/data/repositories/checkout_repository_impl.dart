@@ -12,16 +12,24 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   @override
   Future<Either<Failure, String>> placeOrder({
     required String userId,
+    required String phone,
     required String addressId,
     required String paymentMethod,
     required List<CartItemModel> cartItems,
+    required double totalAmount,
+    required double discountAmount,
+    String? couponCode,
   }) async {
     try {
       final orderId = await _source.placeOrder(
         userId: userId,
+        phone: phone,
         addressId: addressId,
         paymentMethod: paymentMethod,
         cartItems: cartItems,
+        totalAmount: totalAmount,
+        discountAmount: discountAmount,
+        couponCode: couponCode,
       );
       return Right(orderId);
     } catch (e) {

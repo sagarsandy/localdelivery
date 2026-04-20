@@ -14,6 +14,8 @@ import '../features/address/domain/use_cases/save_address_use_case.dart';
 import '../features/address/domain/use_cases/delete_address_use_case.dart';
 import '../features/address/domain/use_cases/set_active_address_use_case.dart';
 import '../features/product_listing/domain/use_cases/get_products_use_case.dart';
+import '../features/coupon/domain/use_cases/validate_coupon_use_case.dart';
+import '../features/coupon/domain/use_cases/mark_coupon_used_use_case.dart';
 
 Future<void> registerUseCases(GetIt locator) async {
   // Auth
@@ -44,4 +46,8 @@ Future<void> registerUseCases(GetIt locator) async {
 
   // Product listing
   locator.registerLazySingleton(() => GetProductsUseCase(locator()));
+
+  // Coupon
+  locator.registerLazySingleton(() => ValidateCouponUseCase(locator()));
+  locator.registerLazySingleton(() => MarkCouponUsedUseCase(locator()));
 }

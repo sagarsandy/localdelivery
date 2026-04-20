@@ -37,6 +37,7 @@ class LDAppRouter {
       // ── Full-screen pages — pushed on top of the shell, no tab bar
       ProductListingPageRoute().route,
       ProductDetailPageRoute().route,
+      CheckoutPageRoute().route,
       GoRoute(
         name: LDAppRoute.referEarn.name,
         path: LDAppRoute.referEarn.path,
@@ -87,7 +88,6 @@ class LDAppRouter {
           StatefulShellBranch(
             routes: [
               CartPageRoute().route,
-              CheckoutPageRoute().route,
             ],
           ),
           // Tab 3: More (Profile + Addresses)

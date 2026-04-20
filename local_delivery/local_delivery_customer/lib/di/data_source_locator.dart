@@ -20,6 +20,8 @@ import '../features/checkout/data/sources/checkout_remote_source.dart';
 import '../features/checkout/data/sources/firebase/firebase_checkout_source.dart';
 import '../features/product_listing/data/sources/product_remote_source.dart';
 import '../features/product_listing/data/sources/firebase/firebase_product_source.dart';
+import '../features/coupon/data/sources/coupon_remote_source.dart';
+import '../features/coupon/data/sources/firebase/firebase_coupon_source.dart';
 
 Future<void> registerDataSources(GetIt locator) async {
   locator.registerLazySingleton(() => LocationService());
@@ -33,4 +35,5 @@ Future<void> registerDataSources(GetIt locator) async {
   locator.registerLazySingleton<AddressRemoteSource>(() => FirebaseAddressSource());
   locator.registerLazySingleton<CheckoutRemoteSource>(() => FirebaseCheckoutSource());
   locator.registerLazySingleton<ProductRemoteSource>(() => FirebaseProductSource());
+  locator.registerLazySingleton<CouponRemoteSource>(() => FirebaseCouponSource());
 }

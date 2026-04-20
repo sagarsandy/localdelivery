@@ -12,36 +12,58 @@ class FirebaseCheckoutSource implements CheckoutRemoteSource {
   @override
   Future<String> placeOrder({
     required String userId,
+    required String phone,
     required String addressId,
     required String paymentMethod,
     required List<CartItemModel> cartItems,
+    required double totalAmount,
+    required double discountAmount,
+    String? couponCode,
   }) async {
-    final totalAmount =
-        cartItems.fold<double>(0, (sum, item) => sum + item.totalPrice);
-
     final batch = _firestore.batch();
-    final orderRef = _firestore.collection(FirebaseCollections.orders).doc();
 
+    // ── Order document ─────────────────────────────────────────────────────
+    final orderRef = _firestore.collection(FirebaseCollections.orders).doc();
     batch.set(orderRef, {
-      'user_id': userId,
+      'userId': userId,
+      'phone': phone,
       'status': 'pending',
-      'total_amount': totalAmount,
-      'delivery_fee': LDConstants.deliveryCharge,
-      'address_id': addressId,
-      'payment_method': paymentMethod,
-      'item_count': cartItems.length,
-      'created_at': FieldValue.serverTimestamp(),
+      'subtotal': totalAmount,
+      'discountAmount': discountAmount,
+      'couponCode': couponCode,
+      'deliveryFee': LDConstants.deliveryCharge,
+      'platformFee': LDConstants.platformFee,
+      'totalAmount': totalAmount -
+          discountAmount +
+          LDConstants.deliveryCharge +
+          LDConstants.platformFee,
+      'addressId': addressId,
+      'paymentMethod': paymentMethod,
+      'itemCount': cartItems.length,
+      'createdAt': FieldValue.serverTimestamp(),
     });
 
+    // ── Order items ────────────────────────────────────────────────────────
     for (final item in cartItems) {
       final itemRef =
           _firestore.collection(FirebaseCollections.orderItems).doc();
       batch.set(itemRef, {
-        'order_id': orderRef.id,
-        'product_id': item.productId,
+        'orderId': orderRef.id,
+        'productId': item.productId,
         'name': item.productName,
         'price': item.price,
         'quantity': item.quantity,
+      });
+    }
+
+    // ── Mark coupon as used (if one was applied) ───────────────────────────
+    if (couponCode != null && couponCode.isNotEmpty && phone.isNotEmpty) {
+      final usedRef =
+          _firestore.collection(FirebaseCollections.usedCoupons).doc();
+      batch.set(usedRef, {
+        'coupon': couponCode,
+        'phone': phone,
+        'date': FieldValue.serverTimestamp(),
       });
     }
 

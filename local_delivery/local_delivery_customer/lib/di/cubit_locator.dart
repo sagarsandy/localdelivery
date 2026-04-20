@@ -11,6 +11,7 @@ import '../features/profile/cubit/profile_cubit.dart';
 import '../features/address/cubit/address_cubit.dart';
 import '../features/product_listing/cubit/product_listing_cubit.dart';
 import '../features/splash/cubit/splash_cubit.dart';
+import '../features/coupon/cubit/coupon_cubit.dart';
 
 Future<void> registerCubits(GetIt locator) async {
   // ── Singletons — shared state across the app ──────────────────────────────
@@ -36,6 +37,7 @@ Future<void> registerCubits(GetIt locator) async {
   locator.registerFactory(() => OrderDetailCubit(locator()));
   locator.registerFactory(() => ProfileCubit(locator()));
   locator.registerFactory(() => ProductListingCubit(locator()));
+  locator.registerFactory(() => CouponCubit(locator()));
 
   // Splash: factory is fine — used once per launch
   locator.registerFactory(

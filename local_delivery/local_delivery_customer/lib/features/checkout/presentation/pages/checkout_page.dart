@@ -12,80 +12,135 @@ import '../../../address/domain/models/address_model.dart';
 import '../../../cart/cubit/cart_cubit.dart';
 import '../../../cart/cubit/cart_state.dart';
 import '../../../cart/domain/models/cart_item_model.dart';
+import '../../../coupon/cubit/coupon_cubit.dart';
+import '../../../coupon/cubit/coupon_state.dart';
 import '../../cubit/checkout_cubit.dart';
 import '../../cubit/checkout_state.dart';
 
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({super.key});
 
-  static const String _paymentMethod = 'Cash on Delivery';
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => locator<CheckoutCubit>()),
+        BlocProvider(create: (_) => locator<CouponCubit>()),
         BlocProvider.value(value: locator<AddressCubit>()),
       ],
-      child: BlocConsumer<CheckoutCubit, CheckoutState>(
-        listener: (context, state) {
-          if (state is CheckoutSuccess) {
-            locator<CartCubit>().clearCart();
-            LDToast.show(
-              context,
-              message: 'Order placed successfully!',
-              type: LDToastType.success,
-            );
-            context.go(LDAppRoute.orders.path);
-          } else if (state is CheckoutError) {
-            LDToast.show(
-              context,
-              message: state.message,
-              type: LDToastType.error,
-            );
-          }
-        },
-        builder: (context, checkoutState) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFF5F5F5),
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.white,
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              title: const Text(
-                'Checkout',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black87,
-                ),
-              ),
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(1),
-                child: Divider(height: 1, color: Colors.grey.shade200),
-              ),
-            ),
-            body: BlocBuilder<CartCubit, CartState>(
-              bloc: locator<CartCubit>(),
-              builder: (context, cartState) {
-                final items = cartState is CartLoaded
-                    ? cartState.items
-                    : <CartItemModel>[];
-                final subtotal =
-                    items.fold<double>(0, (s, i) => s + i.totalPrice);
-                final grandTotal = subtotal +
-                    LDConstants.deliveryCharge +
-                    LDConstants.platformFee;
+      child: const _CheckoutScaffold(),
+    );
+  }
+}
 
-                return BlocBuilder<AddressCubit, AddressState>(
-                  builder: (context, addressState) {
-                    final activeAddress = addressState is AddressLoaded
-                        ? addressState.activeAddress
-                        : null;
+// ─────────────────────────────────────────────────────────────────────────────
+// Scaffold — listens to CheckoutCubit for success/error side-effects
+// ─────────────────────────────────────────────────────────────────────────────
+class _CheckoutScaffold extends StatelessWidget {
+  const _CheckoutScaffold();
+
+  static const String _paymentMethod = 'Cash on Delivery';
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<CheckoutCubit, CheckoutState>(
+      listener: (context, state) {
+        if (state is CheckoutSuccess) {
+          locator<CartCubit>().clearCart();
+          context.read<CouponCubit>().removeCoupon();
+          LDToast.show(
+            context,
+            message: 'Order placed successfully!',
+            type: LDToastType.success,
+          );
+          context.go(LDAppRoute.orders.path);
+        } else if (state is CheckoutError) {
+          LDToast.show(
+            context,
+            message: state.message,
+            type: LDToastType.error,
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: const Text(
+            'Checkout',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: Colors.black87,
+            ),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Divider(height: 1, color: Colors.grey.shade200),
+          ),
+        ),
+        body: _CheckoutBody(paymentMethod: _paymentMethod),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Body — StatefulWidget for the coupon text controller
+// ─────────────────────────────────────────────────────────────────────────────
+class _CheckoutBody extends StatefulWidget {
+  const _CheckoutBody({required this.paymentMethod});
+  final String paymentMethod;
+
+  @override
+  State<_CheckoutBody> createState() => _CheckoutBodyState();
+}
+
+class _CheckoutBodyState extends State<_CheckoutBody> {
+  final _couponController = TextEditingController();
+
+  @override
+  void dispose() {
+    _couponController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CartCubit, CartState>(
+      bloc: locator<CartCubit>(),
+      builder: (context, cartState) {
+        final items =
+            cartState is CartLoaded ? cartState.items : <CartItemModel>[];
+        final subtotal = items.fold<double>(0, (s, i) => s + i.totalPrice);
+
+        return BlocBuilder<CouponCubit, CouponState>(
+          builder: (context, couponState) {
+            final discountAmount = couponState is CouponApplied
+                ? couponState.discountAmount
+                : 0.0;
+            final appliedCoupon =
+                couponState is CouponApplied ? couponState.coupon : null;
+            final grandTotal = subtotal -
+                discountAmount +
+                LDConstants.deliveryCharge +
+                LDConstants.platformFee;
+
+            return BlocBuilder<AddressCubit, AddressState>(
+              builder: (context, addressState) {
+                final activeAddress = addressState is AddressLoaded
+                    ? addressState.activeAddress
+                    : null;
+
+                return BlocBuilder<CheckoutCubit, CheckoutState>(
+                  builder: (context, checkoutState) {
+                    final isPlacingOrder = checkoutState is CheckoutLoading;
 
                     return Column(
                       children: [
@@ -95,7 +150,7 @@ class CheckoutPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // ── Order summary card
+                                // ── Order Summary ──────────────────────────
                                 _SectionCard(
                                   child: Column(
                                     crossAxisAlignment:
@@ -106,15 +161,13 @@ class CheckoutPage extends StatelessWidget {
                                         label: 'Order Summary',
                                       ),
                                       const SizedBox(height: 12),
-                                      ...items.map(
-                                        (item) =>
-                                            _OrderItemRowWidget(item: item),
-                                      ),
+                                      ...items.map((item) =>
+                                          _OrderItemRow(item: item)),
                                       if (items.isEmpty)
-                                        const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 12),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 12),
+                                          child: Center(
                                             child: Text(
                                               'Your cart is empty',
                                               style: TextStyle(
@@ -127,7 +180,7 @@ class CheckoutPage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 12),
 
-                                // ── Price breakdown card
+                                // ── Price Details ──────────────────────────
                                 _SectionCard(
                                   child: Column(
                                     crossAxisAlignment:
@@ -138,34 +191,44 @@ class CheckoutPage extends StatelessWidget {
                                         label: 'Price Details',
                                       ),
                                       const SizedBox(height: 16),
-                                      _PriceRowWidget(
+                                      _PriceRow(
                                         label: 'Subtotal',
                                         value:
                                             '₹${subtotal.toStringAsFixed(0)}',
                                       ),
+                                      if (discountAmount > 0) ...[
+                                        const SizedBox(height: 10),
+                                        _PriceRow(
+                                          label:
+                                              'Coupon (${appliedCoupon?.code ?? ''})',
+                                          value:
+                                              '− ₹${discountAmount.toStringAsFixed(0)}',
+                                          valueColor: LDColors.primary,
+                                        ),
+                                      ],
                                       const SizedBox(height: 10),
-                                      _PriceRowWidget(
+                                      _PriceRow(
                                         label: 'Delivery charge',
                                         value:
                                             '₹${LDConstants.deliveryCharge.toStringAsFixed(0)}',
                                         valueColor: Colors.black54,
                                       ),
                                       const SizedBox(height: 10),
-                                      _PriceRowWidget(
+                                      _PriceRow(
                                         label: 'Platform fee',
                                         value:
                                             '₹${LDConstants.platformFee.toStringAsFixed(0)}',
                                         valueColor: Colors.black54,
                                       ),
                                       const Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 12),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 12),
                                         child: Divider(
                                           height: 1,
                                           color: Color(0xFFEEEEEE),
                                         ),
                                       ),
-                                      _PriceRowWidget(
+                                      _PriceRow(
                                         label: 'Total',
                                         value:
                                             '₹${grandTotal.toStringAsFixed(0)}',
@@ -185,7 +248,7 @@ class CheckoutPage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 12),
 
-                                // ── Delivery address card
+                                // ── Delivery Address ───────────────────────
                                 _SectionCard(
                                   child: Column(
                                     crossAxisAlignment:
@@ -197,14 +260,29 @@ class CheckoutPage extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 12),
                                       _DeliveryAddressWidget(
-                                        activeAddress: activeAddress,
-                                      ),
+                                          activeAddress: activeAddress),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(height: 12),
 
-                                // ── Payment method card (COD only)
+                                // ── Coupon / Promo ─────────────────────────
+                                _SectionCard(
+                                  child: _CouponSectionWidget(
+                                    controller: _couponController,
+                                    couponState: couponState,
+                                    subtotal: subtotal,
+                                    onRemove: () {
+                                      _couponController.clear();
+                                      context
+                                          .read<CouponCubit>()
+                                          .removeCoupon();
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // ── Payment Method ─────────────────────────
                                 _SectionCard(
                                   child: Column(
                                     crossAxisAlignment:
@@ -223,7 +301,6 @@ class CheckoutPage extends StatelessWidget {
                                               BorderRadius.circular(12),
                                           border: Border.all(
                                             color: LDColors.primary,
-                                            width: 1,
                                           ),
                                         ),
                                         child: Row(
@@ -231,7 +308,7 @@ class CheckoutPage extends StatelessWidget {
                                             Container(
                                               width: 36,
                                               height: 36,
-                                              decoration: BoxDecoration(
+                                              decoration: const BoxDecoration(
                                                 color: LDColors.primary,
                                                 shape: BoxShape.circle,
                                               ),
@@ -283,17 +360,20 @@ class CheckoutPage extends StatelessWidget {
                           ),
                         ),
 
-                        // ── Sticky Place Order button
-                        _PlaceOrderButtonWidget(
+                        // ── Place Order button ─────────────────────────────
+                        _PlaceOrderButton(
                           grandTotal: grandTotal,
-                          isLoading: checkoutState is CheckoutLoading,
+                          isLoading: isPlacingOrder,
                           onPressed: items.isEmpty
                               ? null
                               : () {
                                   context.read<CheckoutCubit>().placeOrder(
                                         addressId: activeAddress?.id ?? '',
-                                        paymentMethod: _paymentMethod,
+                                        paymentMethod: widget.paymentMethod,
                                         cartItems: items,
+                                        subtotal: subtotal,
+                                        discountAmount: discountAmount,
+                                        couponCode: appliedCoupon?.code,
                                       );
                                 },
                         ),
@@ -302,16 +382,245 @@ class CheckoutPage extends StatelessWidget {
                   },
                 );
               },
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Coupon section widget
+// ─────────────────────────────────────────────────────────────────────────────
+class _CouponSectionWidget extends StatelessWidget {
+  const _CouponSectionWidget({
+    required this.controller,
+    required this.couponState,
+    required this.subtotal,
+    required this.onRemove,
+  });
+
+  final TextEditingController controller;
+  final CouponState couponState;
+  final double subtotal;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionTitle(
+          icon: Icons.local_offer_outlined,
+          label: 'Coupon / Promo',
+        ),
+        const SizedBox(height: 14),
+
+        // ── Applied state ──────────────────────────────────────────────────
+        if (couponState is CouponApplied) ...[
+          _AppliedCouponBanner(
+            state: couponState as CouponApplied,
+            onRemove: onRemove,
+          ),
+        ] else ...[
+          // ── Input row ──────────────────────────────────────────────────
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: couponState is CouponError
+                          ? Colors.red.shade400
+                          : Colors.grey.shade300,
+                    ),
+                  ),
+                  child: TextField(
+                    controller: controller,
+                    textCapitalization: TextCapitalization.characters,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2,
+                      color: Colors.black87,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Enter coupon code',
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade400,
+                        letterSpacing: 0,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 14),
+                    ),
+                    onSubmitted: (_) => _applyPressed(context),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: couponState is CouponValidating
+                    ? null
+                    : () => _applyPressed(context),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: couponState is CouponValidating
+                        ? Colors.grey.shade300
+                        : LDColors.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: couponState is CouponValidating
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Apply',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // ── Error message ──────────────────────────────────────────────
+          if (couponState is CouponError) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.error_outline,
+                    color: Colors.red.shade500, size: 15),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    (couponState as CouponError).message,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.red.shade500,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ],
+        ],
+      ],
+    );
+  }
+
+  void _applyPressed(BuildContext context) {
+    context.read<CouponCubit>().applyCoupon(
+          code: controller.text,
+          subtotal: subtotal,
+        );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Applied coupon banner
+// ─────────────────────────────────────────────────────────────────────────────
+class _AppliedCouponBanner extends StatelessWidget {
+  const _AppliedCouponBanner({required this.state, required this.onRemove});
+  final CouponApplied state;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final isPercent = state.coupon.isPercentage;
+    final label = isPercent
+        ? '${state.coupon.value}% off applied'
+        : '₹${state.coupon.value} off applied';
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: LDColors.primary),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              color: LDColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.local_offer_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  state.coupon.code,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: LDColors.primary,
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$label · you save ₹${state.discountAmount.toStringAsFixed(0)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.close_rounded,
+                  size: 16, color: Colors.grey.shade600),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Delivery address widget — shows active address or prompts to set one
+// Delivery address
 // ─────────────────────────────────────────────────────────────────────────────
 class _DeliveryAddressWidget extends StatelessWidget {
   const _DeliveryAddressWidget({this.activeAddress});
@@ -322,8 +631,6 @@ class _DeliveryAddressWidget extends StatelessWidget {
     if (activeAddress != null) {
       return _AddressDetailsCard(address: activeAddress!);
     }
-
-    // No active address — prompt to go to addresses page.
     return GestureDetector(
       onTap: () => context.push(LDAppRoute.addresses.path),
       child: Container(
@@ -367,7 +674,7 @@ class _AddressDetailsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFE8F5E9),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: LDColors.primary, width: 1),
+        border: Border.all(color: LDColors.primary),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +682,7 @@ class _AddressDetailsCard extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: LDColors.primary,
               shape: BoxShape.circle,
             ),
@@ -388,7 +695,7 @@ class _AddressDetailsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  address.label,
+                  address.city,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -409,7 +716,7 @@ class _AddressDetailsCard extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () => context.push(LDAppRoute.addresses.path),
-            child: Text(
+            child: const Text(
               'Change',
               style: TextStyle(
                 fontSize: 13,
@@ -425,7 +732,7 @@ class _AddressDetailsCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Reusable white card wrapper
+// Shared UI atoms
 // ─────────────────────────────────────────────────────────────────────────────
 class _SectionCard extends StatelessWidget {
   const _SectionCard({required this.child});
@@ -452,9 +759,6 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Section title with icon
-// ─────────────────────────────────────────────────────────────────────────────
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({required this.icon, required this.label});
   final IconData icon;
@@ -479,11 +783,8 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Order item row — name × qty | price
-// ─────────────────────────────────────────────────────────────────────────────
-class _OrderItemRowWidget extends StatelessWidget {
-  const _OrderItemRowWidget({required this.item});
+class _OrderItemRow extends StatelessWidget {
+  const _OrderItemRow({required this.item});
   final CartItemModel item;
 
   @override
@@ -539,11 +840,8 @@ class _OrderItemRowWidget extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Price breakdown row
-// ─────────────────────────────────────────────────────────────────────────────
-class _PriceRowWidget extends StatelessWidget {
-  const _PriceRowWidget({
+class _PriceRow extends StatelessWidget {
+  const _PriceRow({
     required this.label,
     required this.value,
     this.labelStyle,
@@ -585,11 +883,8 @@ class _PriceRowWidget extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sticky Place Order button
-// ─────────────────────────────────────────────────────────────────────────────
-class _PlaceOrderButtonWidget extends StatelessWidget {
-  const _PlaceOrderButtonWidget({
+class _PlaceOrderButton extends StatelessWidget {
+  const _PlaceOrderButton({
     required this.grandTotal,
     required this.isLoading,
     required this.onPressed,
@@ -602,7 +897,6 @@ class _PlaceOrderButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPad = MediaQuery.paddingOf(context).bottom;
-
     return Container(
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPad),
       decoration: BoxDecoration(
@@ -621,9 +915,7 @@ class _PlaceOrderButtonWidget extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           height: 54,
           decoration: BoxDecoration(
-            color: onPressed == null
-                ? Colors.grey.shade300
-                : LDColors.primary,
+            color: onPressed == null ? Colors.grey.shade300 : LDColors.primary,
             borderRadius: BorderRadius.circular(14),
           ),
           child: isLoading
@@ -632,9 +924,7 @@ class _PlaceOrderButtonWidget extends StatelessWidget {
                     width: 22,
                     height: 22,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Colors.white,
-                    ),
+                        strokeWidth: 2.5, color: Colors.white),
                   ),
                 )
               : Row(

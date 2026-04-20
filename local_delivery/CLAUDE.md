@@ -77,9 +77,30 @@ Never introduce a "store" layer. Cart, checkout, and orders operate directly on 
 
 ---
 
+## Hard Rules (never violate)
+
+### 1. Firestore field & collection naming — camelCase always
+> All Firestore **field names** and **collection names** are **camelCase**.  
+> Never use snake_case in any Firestore document write, query, or DTO.
+
+### 2. No `call` method in use cases
+> Use case methods must have descriptive names — never `call()`.  
+> ✅ `validateCoupon(...)` ✅ `getAddresses(...)` ✅ `markCouponUsed(...)` ✅ `placeOrder(...)`  
+> ❌ `call(...)`
+
+### 3. User identity — always by phone
+> Never query Firestore by `userId` for user-facing data.  
+> Always use `UserSession.instance.phoneNumber` as the query key.  
+> Applies to: `address`, `usedCoupons`, and any future user-linked collection.  
+> (`userId` may still appear in `orders` for reference but is not the primary query key.)
+
+---
+
 ## Firestore Collections & Field Names
 
 Always use the constants in `lib/core/data/remote/firebase/firebase_collections.dart` for collection names. Never use string literals.
+
+Full schema reference: `local_delivery_ui/DBDesign/` (address.yaml, coupons.yaml, usedCoupons.yaml, users.yaml, products.yaml, categories.yaml, subcategories.yaml)
 
 ### `categories`
 | Field | Type | Notes |
@@ -102,54 +123,71 @@ Always use the constants in `lib/core/data/remote/firebase/firebase_collections.
 | `category` | String | Parent category document ID |
 | `subcategory` | String | Parent subcategory document ID |
 | `price` | double | Unit price |
+| `originalPrice` | double | Original / crossed-out price |
 | `quantity` | int | Available quantity |
 | `units` | String | Unit label (e.g. "kg", "pcs") |
+| `description` | String | Product description |
 | `isAvailable` | bool | Whether listed for sale |
 | `inStock` | bool | Whether currently in stock |
-
-### `orders`
-| Field | Type | Notes |
-|-------|------|-------|
-| `user_id` | String | |
-| `status` | String | pending / confirmed / out_for_delivery / delivered / cancelled |
-| `total_amount` | double | |
-| `delivery_fee` | double | |
-| `address_id` | String | |
-| `payment_method` | String | |
-| `item_count` | int | |
-| `created_at` | Timestamp | |
-
-### `order_items`
-| Field | Type | Notes |
-|-------|------|-------|
-| `order_id` | String | |
-| `product_id` | String | |
-| `name` | String | Snapshot of product title at time of order |
-| `price` | double | |
-| `quantity` | int | |
 
 ### `users`
 | Field | Type | Notes |
 |-------|------|-------|
-| `phone` | String | |
 | `name` | String | |
-| `email` | String | Optional |
-| `avatar_url` | String | Optional |
-| `created_at` | Timestamp | |
+| `phone` | String | Primary key for user-linked queries |
 
-### `addresses`
+### `address`
 | Field | Type | Notes |
 |-------|------|-------|
-| `user_id` | String | |
-| `label` | String | Home / Work / Other |
-| `address_line1` | String | |
-| `address_line2` | String | Optional |
+| `address` | String | Full address as a single string |
+| `phone` | String | Links address to user (query key) |
 | `city` | String | |
 | `pincode` | String | |
-| `is_default` | bool | |
+| `state` | String | |
+| `isActive` | bool | Marks the currently selected delivery address |
 
-### DTO field mapping rule
-Firestore uses camelCase (`isAvailable`, `inStock`) for product booleans and `snake_case` for order/address fields. Always check the table above before writing a DTO — never guess field names.
+### `orders`
+| Field | Type | Notes |
+|-------|------|-------|
+| `userId` | String | Firebase Auth UID (reference only, not query key) |
+| `phone` | String | User's phone number |
+| `status` | String | pending / confirmed / out_for_delivery / delivered / cancelled |
+| `subtotal` | double | Cart total before discounts/fees |
+| `discountAmount` | double | Coupon discount applied |
+| `couponCode` | String | Applied coupon code (nullable) |
+| `deliveryFee` | double | |
+| `platformFee` | double | |
+| `totalAmount` | double | subtotal − discountAmount + deliveryFee + platformFee |
+| `addressId` | String | |
+| `paymentMethod` | String | |
+| `itemCount` | int | |
+| `createdAt` | Timestamp | |
+
+### `orderItems`
+| Field | Type | Notes |
+|-------|------|-------|
+| `orderId` | String | |
+| `productId` | String | |
+| `name` | String | Snapshot of product title at time of order |
+| `price` | double | |
+| `quantity` | int | |
+
+### `coupons`
+| Field | Type | Notes |
+|-------|------|-------|
+| `coupon` | String | Coupon code (e.g. "SAVE50") |
+| `description` | String | |
+| `type` | String | `'amount'` or `'percentage'` |
+| `value` | int | Fixed ₹ amount or percentage points |
+| `isActive` | bool | |
+| `expiryDate` | Timestamp | |
+
+### `usedCoupons`
+| Field | Type | Notes |
+|-------|------|-------|
+| `coupon` | String | Coupon code |
+| `phone` | String | User's phone number |
+| `date` | Timestamp | When the coupon was used |
 
 ---
 
@@ -190,7 +228,7 @@ features/
 - **Remote source interfaces** (`x_remote_source.dart`) have no Firebase imports — they define the contract only.
 - **Firebase sources** throw exceptions on error; they never return `Either`.
 - **Repository impls** catch exceptions from sources and wrap results in `Either<Failure, T>`. They also convert DTOs to domain models via `dto.toDomain()`.
-- **Cubits** must never import Firebase directly. Use `UserSession.instance` for user identity (userId, isLoggedIn), and use cases for all data operations.
+- **Cubits** must never import Firebase directly. Use `UserSession.instance` for user identity (`phoneNumber`, `isLoggedIn`), and use cases for all data operations.
 - **Use case methods** must have descriptive names — never `call()`. Examples: `getCategories()`, `placeOrder()`, `sendOtp()`.
 
 ---
@@ -202,7 +240,8 @@ features/
 | auth | `features/auth/` | Phone OTP login (login + otp screens) |
 | home | `features/home/` | Home screen: Fresh Picks, Trending Items, Categories |
 | cart | `features/cart/` | Persistent local cart (singleton CartCubit) |
-| checkout | `features/checkout/` | Address + payment method + place order |
+| checkout | `features/checkout/` | Address + coupon + payment method + place order |
+| coupon | `features/coupon/` | Coupon validation and discount calculation |
 | orders | `features/orders/` | Order history list |
 | order_detail | `features/order_detail/` | Full order breakdown with status timeline |
 | profile | `features/profile/` | User info, logout, links to orders/addresses |
@@ -228,6 +267,24 @@ The home screen loads three independent datasets:
 
 ---
 
+## Key Design Decisions
+
+### AddressModel
+- Single `address` string field (no `addressLine1` / `addressLine2` split).
+- `isActive` marks the currently selected delivery address.
+- Queried by `phone` (not userId).
+
+### Coupon Flow
+1. **Validate**: query `coupons` where `coupon == code` → check `isActive`, `expiryDate`, then query `usedCoupons` where `coupon == code AND phone == userPhone`.
+2. **Types**: `'amount'` → fixed ₹ deduction | `'percentage'` → % of subtotal (capped at subtotal).
+3. **On order placed**: batch-write to `usedCoupons` (`coupon`, `phone`, `date`) atomically with the order and orderItems in a single Firestore batch.
+
+### Fees (from `LDConstants`)
+- `deliveryCharge = 10.0`
+- `platformFee = 10.0`
+
+---
+
 ## Dependency Injection
 
 GetIt is used. The locator is initialized in `main.dart` via `setupLocator()` which calls four files in order:
@@ -235,7 +292,14 @@ GetIt is used. The locator is initialized in `main.dart` via `setupLocator()` wh
 1. `di/data_source_locator.dart` — all remote sources as `registerLazySingleton` (interface → Firebase impl)
 2. `di/repository_locator.dart` — all repos as `registerLazySingleton`; each repo receives its source via `locator<XRemoteSource>()`
 3. `di/use_case_locator.dart` — all use cases as `registerLazySingleton`
-4. `di/cubit_locator.dart` — **CartCubit as singleton** (persists across pages), all others as `registerFactory` (fresh per page)
+4. `di/cubit_locator.dart` — cubits registered as shown below
+
+### Singleton vs Factory Cubits
+| Cubit | Registration | Reason |
+|-------|-------------|--------|
+| `CartCubit` | `registerLazySingleton` | Shared cart state across all tabs |
+| `AddressCubit` | `registerLazySingleton` | Active address shown on home + checkout |
+| All others | `registerFactory` | Fresh instance per page visit |
 
 To add a new feature: register its source in `data_source_locator.dart`, repo in `repository_locator.dart`, use case in `use_case_locator.dart`, cubit in `cubit_locator.dart`, and route in `ld_app_router.dart`.
 
@@ -251,20 +315,31 @@ Routes are defined in `lib/app/router/`:
   - `buildPageWithNoTransition()` — instant (use for tab roots like Home, Login)
 - `ld_app_router.dart` — central `GoRouter` config; auth redirect uses `UserSession.instance.isLoggedIn`
 
+### Navigation — shell vs full-screen
+- Routes inside `StatefulShellBranch` → inherit the bottom tab bar.
+- Top-level routes (outside the shell) → no tab bar (full-screen push).
+- Full-screen routes: `splash`, `login`, `otp`, `checkout`, `productListing`, `productDetail`, `referEarn`, `support`, `aboutUs`.
+
 ### Active routes
 
-| Enum | Path | Screen |
-|------|------|--------|
-| `LDAppRoute.login` | `/login` | Login page |
-| `LDAppRoute.otp` | `/otp` | OTP verification |
-| `LDAppRoute.home` | `/home` | Home screen |
-| `LDAppRoute.cart` | `/cart` | Cart |
-| `LDAppRoute.checkout` | `/checkout` | Checkout |
-| `LDAppRoute.orders` | `/orders` | Order history |
-| `LDAppRoute.orderDetail` | `/order/:orderId` | Order detail |
-| `LDAppRoute.profile` | `/profile` | Profile |
-| `LDAppRoute.addresses` | `/addresses` | Address list |
-| `LDAppRoute.addAddress` | `/addresses/add` | Add address form |
+| Enum | Path | Screen | Shell? |
+|------|------|--------|--------|
+| `LDAppRoute.splash` | `/` | Splash screen | No |
+| `LDAppRoute.login` | `/login` | Login page | No |
+| `LDAppRoute.otp` | `/otp` | OTP verification | No |
+| `LDAppRoute.home` | `/home` | Home screen | Yes |
+| `LDAppRoute.cart` | `/cart` | Cart | Yes |
+| `LDAppRoute.checkout` | `/checkout` | Checkout | No |
+| `LDAppRoute.orders` | `/orders` | Order history | Yes |
+| `LDAppRoute.orderDetail` | `/order/:orderId` | Order detail | Yes |
+| `LDAppRoute.profile` | `/profile` | Profile | Yes |
+| `LDAppRoute.addresses` | `/addresses` | Address list | No |
+| `LDAppRoute.addAddress` | `/addresses/add` | Add address form | No |
+| `LDAppRoute.productListing` | `/products` | Product listing | No |
+| `LDAppRoute.productDetail` | `/product/:productId` | Product detail | No |
+| `LDAppRoute.referEarn` | `/refer` | Refer & Earn | No |
+| `LDAppRoute.support` | `/support` | Support | No |
+| `LDAppRoute.aboutUs` | `/about` | About Us | No |
 
 Each feature's route class implements `LDPageRoute` and provides a single `GoRoute get route`. Exception: `AddressPageRoute` returns `List<GoRoute> get routes`.
 

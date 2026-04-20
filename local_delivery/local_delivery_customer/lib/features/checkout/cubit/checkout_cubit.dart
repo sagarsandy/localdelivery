@@ -14,25 +14,31 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     required String addressId,
     required String paymentMethod,
     required List<CartItemModel> cartItems,
+    required double subtotal,
+    required double discountAmount,
+    String? couponCode,
   }) async {
     if (cartItems.isEmpty) {
       emit(const CheckoutError('Your cart is empty.'));
       return;
     }
 
-    final userId = UserSession.instance.userId;
-    if (userId == null) {
-      emit(const CheckoutError('User not logged in.'));
-      return;
-    }
+    final userId = UserSession.instance.userId ?? '';
+    final phone = UserSession.instance.phoneNumber ?? '';
 
     emit(CheckoutLoading());
+
     final result = await _checkoutRepository.placeOrder(
       userId: userId,
+      phone: phone,
       addressId: addressId,
       paymentMethod: paymentMethod,
       cartItems: cartItems,
+      totalAmount: subtotal,
+      discountAmount: discountAmount,
+      couponCode: couponCode,
     );
+
     result.fold(
       (failure) => emit(CheckoutError(failure.message)),
       (orderId) => emit(CheckoutSuccess(orderId)),

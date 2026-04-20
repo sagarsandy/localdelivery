@@ -1,9 +1,7 @@
-/// Firestore collection name constants.
+/// Firestore collection name constants — snake_case, lowercase.
 ///
 /// All data-source files that access Firestore must import this file
 /// for collection names — never use string literals directly.
-/// If the backend changes, only this file (and the Firebase source impls) need
-/// to be updated.
 class FirebaseCollections {
   FirebaseCollections._();
 
@@ -12,8 +10,10 @@ class FirebaseCollections {
   static const String categories = 'categories';
   static const String subcategories = 'subcategories';
   static const String orders = 'orders';
-  static const String orderItems = 'order_items';
+  static const String orderItems = 'orderItems';
   static const String addresses = 'address';
   static const String users = 'users';
   static const String reviews = 'reviews';
+  static const String coupons = 'coupons';
+  static const String usedCoupons = 'usedCoupons';
 }
