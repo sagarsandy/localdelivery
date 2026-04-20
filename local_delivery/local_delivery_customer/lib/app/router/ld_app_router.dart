@@ -38,6 +38,7 @@ class LDAppRouter {
       ProductListingPageRoute().route,
       ProductDetailPageRoute().route,
       CheckoutPageRoute().route,
+      ...AddressPageRoute().routes,
       GoRoute(
         name: LDAppRoute.referEarn.name,
         path: LDAppRoute.referEarn.path,
@@ -90,11 +91,10 @@ class LDAppRouter {
               CartPageRoute().route,
             ],
           ),
-          // Tab 3: More (Profile + Addresses)
+          // Tab 3: Profile
           StatefulShellBranch(
             routes: [
               ProfilePageRoute().route,
-              ...AddressPageRoute().routes,
             ],
           ),
         ],

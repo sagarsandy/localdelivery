@@ -318,7 +318,7 @@ Routes are defined in `lib/app/router/`:
 ### Navigation — shell vs full-screen
 - Routes inside `StatefulShellBranch` → inherit the bottom tab bar.
 - Top-level routes (outside the shell) → no tab bar (full-screen push).
-- Full-screen routes: `splash`, `login`, `otp`, `checkout`, `productListing`, `productDetail`, `referEarn`, `support`, `aboutUs`.
+- Full-screen routes: `splash`, `login`, `otp`, `checkout`, `addresses`, `addAddress`, `productListing`, `productDetail`, `referEarn`, `support`, `aboutUs`.
 
 ### Active routes
 
@@ -335,6 +335,7 @@ Routes are defined in `lib/app/router/`:
 | `LDAppRoute.profile` | `/profile` | Profile | Yes |
 | `LDAppRoute.addresses` | `/addresses` | Address list | No |
 | `LDAppRoute.addAddress` | `/addresses/add` | Add address form | No |
+
 | `LDAppRoute.productListing` | `/products` | Product listing | No |
 | `LDAppRoute.productDetail` | `/product/:productId` | Product detail | No |
 | `LDAppRoute.referEarn` | `/refer` | Refer & Earn | No |

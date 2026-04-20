@@ -62,7 +62,11 @@ class _AddressView extends StatelessWidget {
       ),
       body: BlocConsumer<AddressCubit, AddressState>(
         listener: (context, state) {
-          if (state is AddressError) {
+          if (state is AddressSaved) {
+            // Reload the list after a new address is saved and the user
+            // pops back from AddAddressPage.
+            context.read<AddressCubit>().loadAddresses();
+          } else if (state is AddressError) {
             LDToast.show(context,
                 message: state.message, type: LDToastType.error);
           }
@@ -111,7 +115,7 @@ class _AddressView extends StatelessWidget {
       icon: Icons.delete_outline_rounded,
       title: 'Delete address?',
       message:
-          'Are you sure you want to remove "${address.label} — ${address.address}"? This cannot be undone.',
+          'Are you sure you want to remove "${address.shortAddress}"? This cannot be undone.',
       confirmLabel: 'Delete',
       cancelLabel: 'Cancel',
       confirmColor: Colors.red.shade600,
@@ -135,17 +139,6 @@ class _AddressCard extends StatelessWidget {
   final AddressModel address;
   final VoidCallback onSetActive;
   final VoidCallback onDelete;
-
-  IconData get _labelIcon {
-    switch (address.label) {
-      case 'Work':
-        return Icons.work_outline_rounded;
-      case 'Other':
-        return Icons.location_on_outlined;
-      default:
-        return Icons.home_outlined;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +165,7 @@ class _AddressCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Label icon
+            // Location icon
             Container(
               width: 40,
               height: 40,
@@ -183,7 +176,7 @@ class _AddressCard extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                _labelIcon,
+                Icons.location_on_outlined,
                 color:
                     address.isActive ? LDColors.primary : Colors.grey.shade500,
                 size: 20,
@@ -198,16 +191,7 @@ class _AddressCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        address.label,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      if (address.isActive) ...[
-                        const SizedBox(width: 8),
+                      if (address.isActive)
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
@@ -224,15 +208,14 @@ class _AddressCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ],
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  if (address.isActive) const SizedBox(height: 4),
                   Text(
                     address.fullAddress,
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade600,
+                      color: Colors.grey.shade700,
                       height: 1.5,
                     ),
                   ),

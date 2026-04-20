@@ -47,7 +47,7 @@ class FirebaseAddressSource implements AddressRemoteSource {
     final snapshot = await _col.where('phone', isEqualTo: phone).get();
     final batch = _firestore.batch();
     for (final doc in snapshot.docs) {
-      batch.update(doc.reference, {'is_active': doc.id == addressId});
+      batch.update(doc.reference, {'isActive': doc.id == addressId});
     }
     await batch.commit();
   }

@@ -123,14 +123,21 @@ class AddressCubit extends Cubit<AddressState> {
 
     final addressModel = await _locationService.getCurrentAddress();
     if (addressModel == null) {
+      // Location could not be determined — let the user add an address manually.
       emit(const AddressLoaded([]));
       return;
     }
 
     final saveResult = await _saveAddressUseCase.saveAddress(addressModel);
-    saveResult.fold(
-      (_) => emit(const AddressLoaded([])),
-      (saved) => emit(AddressLoaded([saved])),
+    await saveResult.fold(
+      (_) async {
+        // Save failed — fall back to empty list so the user can add manually.
+        emit(const AddressLoaded([]));
+      },
+      (saved) async {
+        // Reload from Firestore so the list is consistent with the DB.
+        await loadAddresses(phone: phone);
+      },
     );
   }
 }

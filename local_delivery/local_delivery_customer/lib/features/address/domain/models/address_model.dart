@@ -3,43 +3,38 @@ import 'package:equatable/equatable.dart';
 class AddressModel extends Equatable {
   const AddressModel({
     required this.id,
-    required this.userId,
     required this.phone,
-    required this.label,
     required this.address,
     required this.city,
     required this.pincode,
+    required this.state,
     this.isActive = false,
   });
 
   final String id;
-  final String userId;
   final String phone;
-  final String label; // Home / Work / Other
   final String address;
   final String city;
   final String pincode;
+  final String state;
   final bool isActive;
 
   AddressModel copyWith({
     String? id,
-    String? userId,
     String? phone,
-    String? label,
-    String? addressLine1,
-    String? addressLine2,
+    String? address,
     String? city,
     String? pincode,
+    String? state,
     bool? isActive,
   }) =>
       AddressModel(
         id: id ?? this.id,
-        userId: userId ?? this.userId,
         phone: phone ?? this.phone,
-        label: label ?? this.label,
-        address: address,
+        address: address ?? this.address,
         city: city ?? this.city,
         pincode: pincode ?? this.pincode,
+        state: state ?? this.state,
         isActive: isActive ?? this.isActive,
       );
 
@@ -47,17 +42,17 @@ class AddressModel extends Equatable {
     final parts = [
       address,
       city,
+      if (state.isNotEmpty) state,
       if (pincode.isNotEmpty) pincode,
     ];
     return parts.join(', ');
   }
 
-  /// Short version of the address for header display.
   String get shortAddress {
     final parts = [address, city].where((s) => s.isNotEmpty).toList();
     return parts.join(', ');
   }
 
   @override
-  List<Object?> get props => [id, userId, phone, address, city, isActive];
+  List<Object?> get props => [id, phone, address, city, pincode, state, isActive];
 }
