@@ -8,13 +8,12 @@ class FirebaseAddressSource implements AddressRemoteSource {
   FirebaseAddressSource() : _firestore = FirebaseFirestore.instance;
   final FirebaseFirestore _firestore;
 
+  CollectionReference get _col =>
+      _firestore.collection(FirebaseCollections.addresses);
+
   @override
-  Future<List<AddressDto>> fetchAddresses({required String userId}) async {
-    final snapshot = await _firestore
-        .collection(FirebaseCollections.addresses)
-        .where('user_id', isEqualTo: userId)
-        .orderBy('is_default', descending: true)
-        .get();
+  Future<List<AddressDto>> fetchAddresses({required String phone}) async {
+    final snapshot = await _col.where('phone', isEqualTo: phone).get();
     return snapshot.docs.map(AddressDto.fromFirestore).toList();
   }
 
@@ -23,13 +22,9 @@ class FirebaseAddressSource implements AddressRemoteSource {
     final DocumentReference ref;
 
     if (dto.id.isEmpty) {
-      ref = await _firestore
-          .collection(FirebaseCollections.addresses)
-          .add(dto.toFirestore());
+      ref = await _col.add(dto.toFirestore());
     } else {
-      ref = _firestore
-          .collection(FirebaseCollections.addresses)
-          .doc(dto.id);
+      ref = _col.doc(dto.id);
       await ref.set(dto.toFirestore(), SetOptions(merge: true));
     }
 
@@ -39,9 +34,21 @@ class FirebaseAddressSource implements AddressRemoteSource {
 
   @override
   Future<void> deleteAddress({required String addressId}) async {
-    await _firestore
-        .collection(FirebaseCollections.addresses)
-        .doc(addressId)
-        .delete();
+    await _col.doc(addressId).delete();
+  }
+
+  @override
+  Future<void> setActiveAddress({
+    required String phone,
+    required String addressId,
+  }) async {
+    // Batch update: set is_active=true for the chosen address,
+    // is_active=false for all others belonging to this phone.
+    final snapshot = await _col.where('phone', isEqualTo: phone).get();
+    final batch = _firestore.batch();
+    for (final doc in snapshot.docs) {
+      batch.update(doc.reference, {'is_active': doc.id == addressId});
+    }
+    await batch.commit();
   }
 }

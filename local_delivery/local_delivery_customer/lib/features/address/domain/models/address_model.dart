@@ -4,76 +4,60 @@ class AddressModel extends Equatable {
   const AddressModel({
     required this.id,
     required this.userId,
+    required this.phone,
     required this.label,
-    required this.addressLine1,
-    this.addressLine2,
+    required this.address,
     required this.city,
     required this.pincode,
-    this.isDefault = false,
+    this.isActive = false,
   });
 
   final String id;
   final String userId;
+  final String phone;
   final String label; // Home / Work / Other
-  final String addressLine1;
-  final String? addressLine2;
+  final String address;
   final String city;
   final String pincode;
-  final bool isDefault;
+  final bool isActive;
 
   AddressModel copyWith({
     String? id,
     String? userId,
+    String? phone,
     String? label,
     String? addressLine1,
     String? addressLine2,
     String? city,
     String? pincode,
-    bool? isDefault,
+    bool? isActive,
   }) =>
       AddressModel(
         id: id ?? this.id,
         userId: userId ?? this.userId,
+        phone: phone ?? this.phone,
         label: label ?? this.label,
-        addressLine1: addressLine1 ?? this.addressLine1,
-        addressLine2: addressLine2 ?? this.addressLine2,
+        address: address,
         city: city ?? this.city,
         pincode: pincode ?? this.pincode,
-        isDefault: isDefault ?? this.isDefault,
+        isActive: isActive ?? this.isActive,
       );
-
-  factory AddressModel.fromMap(Map<String, dynamic> map) => AddressModel(
-        id: map['id'] as String,
-        userId: map['user_id'] as String,
-        label: map['label'] as String? ?? 'Home',
-        addressLine1: map['address_line_1'] as String,
-        addressLine2: map['address_line_2'] as String?,
-        city: map['city'] as String,
-        pincode: map['pincode'] as String,
-        isDefault: map['is_default'] as bool? ?? false,
-      );
-
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'user_id': userId,
-        'label': label,
-        'address_line_1': addressLine1,
-        'address_line_2': addressLine2,
-        'city': city,
-        'pincode': pincode,
-        'is_default': isDefault,
-      };
 
   String get fullAddress {
     final parts = [
-      addressLine1,
-      if (addressLine2 != null && addressLine2!.isNotEmpty) addressLine2!,
+      address,
       city,
-      pincode,
+      if (pincode.isNotEmpty) pincode,
     ];
     return parts.join(', ');
   }
 
+  /// Short version of the address for header display.
+  String get shortAddress {
+    final parts = [address, city].where((s) => s.isNotEmpty).toList();
+    return parts.join(', ');
+  }
+
   @override
-  List<Object?> get props => [id, userId, addressLine1, city];
+  List<Object?> get props => [id, userId, phone, address, city, isActive];
 }

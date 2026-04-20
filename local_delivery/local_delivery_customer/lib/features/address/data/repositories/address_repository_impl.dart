@@ -12,10 +12,10 @@ class AddressRepositoryImpl implements AddressRepository {
 
   @override
   Future<Either<Failure, List<AddressModel>>> getAddresses({
-    required String userId,
+    required String phone,
   }) async {
     try {
-      final dtos = await _source.fetchAddresses(userId: userId);
+      final dtos = await _source.fetchAddresses(phone: phone);
       return Right(dtos.map((dto) => dto.toDomain()).toList());
     } catch (e) {
       return Left(ServerFailure(e.toString()));
@@ -41,6 +41,19 @@ class AddressRepositoryImpl implements AddressRepository {
   }) async {
     try {
       await _source.deleteAddress(addressId: addressId);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setActiveAddress({
+    required String phone,
+    required String addressId,
+  }) async {
+    try {
+      await _source.setActiveAddress(phone: phone, addressId: addressId);
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

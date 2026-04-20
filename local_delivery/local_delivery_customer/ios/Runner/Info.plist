@@ -2,6 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Location permissions for auto-detecting delivery address -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Local Delivery uses your location to create a delivery address so orders reach you faster.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Local Delivery uses your location to create a delivery address so orders reach you faster.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

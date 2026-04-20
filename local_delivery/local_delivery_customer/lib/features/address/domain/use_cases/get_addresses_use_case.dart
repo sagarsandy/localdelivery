@@ -7,6 +7,6 @@ class GetAddressesUseCase {
   const GetAddressesUseCase(this._repository);
   final AddressRepository _repository;
 
-  Future<Either<Failure, List<AddressModel>>> getAddresses({required String userId}) =>
-      _repository.getAddresses(userId: userId);
+  Future<Either<Failure, List<AddressModel>>> getAddresses({required String phone}) =>
+      _repository.getAddresses(phone: phone);
 }

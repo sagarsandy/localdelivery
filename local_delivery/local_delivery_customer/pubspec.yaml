@@ -40,15 +40,41 @@ dependencies:
   url_launcher: ^6.3.2
   image_picker: ^1.1.2
   flutter_dotenv: ^5.2.1
+  geolocator: ^13.0.4
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
   build_runner: ^2.4.12
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   assets:
     - .env
     - assets/
+
+# ── App Icon Configuration ─────────────────────────────────────────────────
+# Run `dart run flutter_launcher_icons` after editing this block.
+flutter_launcher_icons:
+  # Android — generates both legacy (mipmap) and adaptive icon (API 26+)
+  android: true
+  # iOS — generates all required icon sizes
+  ios: true
+
+  # Source image (PNG, ideally 1024×1024)
+  image_path: "assets/brand_logo.png"
+
+  # Android adaptive icon: brand green background + logo as foreground layer.
+  # The foreground should have ~25 % safe-zone padding so it doesn't get
+  # clipped on rounded/circle launchers.
+  adaptive_icon_background: "#1D5C38"
+  adaptive_icon_foreground: "assets/brand_logo.png"
+
+  # iOS: strip alpha channel (iOS icons must be fully opaque)
+  remove_alpha_ios: true
+
+  # Minimum Android SDK (21 = Android 5.0 Lollipop)
+  min_sdk_android: 21

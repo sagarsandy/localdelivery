@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import '../core/services/location_service.dart';
 import '../features/auth/data/sources/auth_remote_source.dart';
 import '../features/auth/data/sources/firebase/firebase_auth_source.dart';
 import '../features/home/data/sources/category_remote_source.dart';
@@ -21,6 +22,7 @@ import '../features/product_listing/data/sources/product_remote_source.dart';
 import '../features/product_listing/data/sources/firebase/firebase_product_source.dart';
 
 Future<void> registerDataSources(GetIt locator) async {
+  locator.registerLazySingleton(() => LocationService());
   locator.registerLazySingleton<AuthRemoteSource>(() => FirebaseAuthSource());
   locator.registerLazySingleton<CategoryRemoteSource>(() => FirebaseCategorySource());
   locator.registerLazySingleton<SubcategoryRemoteSource>(() => FirebaseSubcategorySource());

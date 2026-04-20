@@ -7,14 +7,15 @@ import '../../features/auth/otp/router/otp_page_route.dart';
 import '../../features/cart/router/cart_page_route.dart';
 import '../../features/checkout/router/checkout_page_route.dart';
 import '../../features/home/router/home_page_route.dart';
-import '../../features/product_listing/router/product_listing_page_route.dart';
-import '../../features/product_listing/router/product_detail_page_route.dart';
 import '../../features/order_detail/router/order_detail_page_route.dart';
 import '../../features/orders/router/orders_page_route.dart';
-import '../../features/profile/router/profile_page_route.dart';
+import '../../features/product_listing/router/product_detail_page_route.dart';
+import '../../features/product_listing/router/product_listing_page_route.dart';
+import '../../features/profile/presentation/pages/about_us_page.dart';
 import '../../features/profile/presentation/pages/refer_earn_page.dart';
 import '../../features/profile/presentation/pages/support_page.dart';
-import '../../features/profile/presentation/pages/about_us_page.dart';
+import '../../features/profile/router/profile_page_route.dart';
+import '../../features/splash/router/splash_page_route.dart';
 import '../widgets/app_shell_widget.dart';
 import 'ld_app_routes.dart';
 import 'ld_page_route.dart';
@@ -23,12 +24,17 @@ class LDAppRouter {
   LDAppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: LDAppRoute.home.path,
-    // redirect: _handleAuthRedirect,
+    initialLocation: LDAppRoute.splash.path,
+    redirect: _handleAuthRedirect,
     routes: [
+      // ── Splash (entry point — handles auth + location init)
+      SplashPageRoute().route,
+
+      // ── Auth
       LoginPageRoute().route,
       OtpPageRoute().route,
-      // Full-screen pages — pushed on top of the shell, no tab bar
+
+      // ── Full-screen pages — pushed on top of the shell, no tab bar
       ProductListingPageRoute().route,
       ProductDetailPageRoute().route,
       GoRoute(
@@ -58,7 +64,8 @@ class LDAppRouter {
           child: const AboutUsPage(),
         ),
       ),
-      // Tabs shell
+
+      // ── Tabs shell
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShellWidget(shell: navigationShell),

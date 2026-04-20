@@ -1,0 +1,13 @@
+products:
+  category: string
+  description: string
+  id: string
+  image: string
+  inStock: boolean
+  isAvailable: boolean
+  originalPrice: double
+  price: double
+  quantity: int
+  subcategory: string
+  title: string
+  units: string

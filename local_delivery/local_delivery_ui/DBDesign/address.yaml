@@ -1,0 +1,7 @@
+address:
+    address: string
+    phone: string
+    city: string
+    pincode: string
+    state: string
+    isActive: boolean

@@ -13,7 +13,7 @@ class FirebaseCollections {
   static const String subcategories = 'subcategories';
   static const String orders = 'orders';
   static const String orderItems = 'order_items';
-  static const String addresses = 'addresses';
+  static const String addresses = 'address';
   static const String users = 'users';
   static const String reviews = 'reviews';
 }

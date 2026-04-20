@@ -6,29 +6,27 @@ import 'package:local_delivery_ui/local_delivery_ui.dart';
 import '../../../../app/router/ld_app_routes.dart';
 import '../../../../core/constants/ld_constants.dart';
 import '../../../../di/service_locator.dart';
+import '../../../address/cubit/address_cubit.dart';
+import '../../../address/cubit/address_state.dart';
+import '../../../address/domain/models/address_model.dart';
 import '../../../cart/cubit/cart_cubit.dart';
 import '../../../cart/cubit/cart_state.dart';
 import '../../../cart/domain/models/cart_item_model.dart';
 import '../../cubit/checkout_cubit.dart';
 import '../../cubit/checkout_state.dart';
 
-class CheckoutPage extends StatefulWidget {
+class CheckoutPage extends StatelessWidget {
   const CheckoutPage({super.key});
 
-  @override
-  State<CheckoutPage> createState() => _CheckoutPageState();
-}
-
-class _CheckoutPageState extends State<CheckoutPage> {
-  String? _selectedAddressId;
-
-  // Only Cash on Delivery is supported right now.
   static const String _paymentMethod = 'Cash on Delivery';
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => locator<CheckoutCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => locator<CheckoutCubit>()),
+        BlocProvider.value(value: locator<AddressCubit>()),
+      ],
       child: BlocConsumer<CheckoutCubit, CheckoutState>(
         listener: (context, state) {
           if (state is CheckoutSuccess) {
@@ -83,268 +81,344 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     LDConstants.deliveryCharge +
                     LDConstants.platformFee;
 
-                return Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // ── Order summary card
-                            _SectionCard(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _SectionTitle(
-                                    icon: Icons.receipt_long_rounded,
-                                    label: 'Order Summary',
+                return BlocBuilder<AddressCubit, AddressState>(
+                  builder: (context, addressState) {
+                    final activeAddress = addressState is AddressLoaded
+                        ? addressState.activeAddress
+                        : null;
+
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // ── Order summary card
+                                _SectionCard(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const _SectionTitle(
+                                        icon: Icons.receipt_long_rounded,
+                                        label: 'Order Summary',
+                                      ),
+                                      const SizedBox(height: 12),
+                                      ...items.map(
+                                        (item) =>
+                                            _OrderItemRowWidget(item: item),
+                                      ),
+                                      if (items.isEmpty)
+                                        const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 12),
+                                            child: Text(
+                                              'Your cart is empty',
+                                              style: TextStyle(
+                                                  color: Colors.black45),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 12),
-                                  ...items.map(
-                                    (item) => _OrderItemRowWidget(item: item),
-                                  ),
-                                  if (items.isEmpty)
-                                    const Center(
-                                      child: Padding(
+                                ),
+                                const SizedBox(height: 12),
+
+                                // ── Price breakdown card
+                                _SectionCard(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const _SectionTitle(
+                                        icon: Icons.calculate_outlined,
+                                        label: 'Price Details',
+                                      ),
+                                      const SizedBox(height: 16),
+                                      _PriceRowWidget(
+                                        label: 'Subtotal',
+                                        value:
+                                            '₹${subtotal.toStringAsFixed(0)}',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      _PriceRowWidget(
+                                        label: 'Delivery charge',
+                                        value:
+                                            '₹${LDConstants.deliveryCharge.toStringAsFixed(0)}',
+                                        valueColor: Colors.black54,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      _PriceRowWidget(
+                                        label: 'Platform fee',
+                                        value:
+                                            '₹${LDConstants.platformFee.toStringAsFixed(0)}',
+                                        valueColor: Colors.black54,
+                                      ),
+                                      const Padding(
                                         padding:
                                             EdgeInsets.symmetric(vertical: 12),
-                                        child: Text(
-                                          'Your cart is empty',
-                                          style: TextStyle(
-                                              color: Colors.black45),
+                                        child: Divider(
+                                          height: 1,
+                                          color: Color(0xFFEEEEEE),
                                         ),
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-
-                            // ── Price breakdown card
-                            _SectionCard(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _SectionTitle(
-                                    icon: Icons.calculate_outlined,
-                                    label: 'Price Details',
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _PriceRowWidget(
-                                    label: 'Subtotal',
-                                    value:
-                                        '₹${subtotal.toStringAsFixed(0)}',
-                                  ),
-                                  const SizedBox(height: 10),
-                                  _PriceRowWidget(
-                                    label: 'Delivery charge',
-                                    value:
-                                        '₹${LDConstants.deliveryCharge.toStringAsFixed(0)}',
-                                    valueColor: Colors.black54,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  _PriceRowWidget(
-                                    label: 'Platform fee',
-                                    value:
-                                        '₹${LDConstants.platformFee.toStringAsFixed(0)}',
-                                    valueColor: Colors.black54,
-                                  ),
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 12),
-                                    child: Divider(
-                                      height: 1,
-                                      color: Color(0xFFEEEEEE),
-                                    ),
-                                  ),
-                                  _PriceRowWidget(
-                                    label: 'Total',
-                                    value:
-                                        '₹${grandTotal.toStringAsFixed(0)}',
-                                    labelStyle: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.black87,
-                                    ),
-                                    valueStyle: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w900,
-                                      color: LDColors.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-
-                            // ── Delivery address card
-                            _SectionCard(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _SectionTitle(
-                                    icon: Icons.location_on_outlined,
-                                    label: 'Delivery Address',
-                                  ),
-                                  const SizedBox(height: 12),
-                                  GestureDetector(
-                                    onTap: () => context
-                                        .push(LDAppRoute.addresses.path),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(14),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF5F5F5),
-                                        borderRadius:
-                                            BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: _selectedAddressId != null
-                                              ? LDColors.primary
-                                              : Colors.grey.shade300,
-                                          width: 1,
+                                      _PriceRowWidget(
+                                        label: 'Total',
+                                        value:
+                                            '₹${grandTotal.toStringAsFixed(0)}',
+                                        labelStyle: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.black87,
+                                        ),
+                                        valueStyle: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w900,
+                                          color: LDColors.primary,
                                         ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            _selectedAddressId != null
-                                                ? Icons.check_circle_rounded
-                                                : Icons
-                                                    .add_location_alt_outlined,
-                                            color:
-                                                _selectedAddressId != null
-                                                    ? LDColors.primary
-                                                    : Colors.black45,
-                                            size: 22,
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Text(
-                                            _selectedAddressId != null
-                                                ? 'Address selected'
-                                                : 'Select a delivery address',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color:
-                                                  _selectedAddressId != null
-                                                      ? Colors.black87
-                                                      : Colors.black45,
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          Icon(
-                                            Icons.chevron_right_rounded,
-                                            color: Colors.grey.shade400,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
+                                ),
+                                const SizedBox(height: 12),
 
-                            // ── Payment method card (COD only)
-                            _SectionCard(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _SectionTitle(
-                                    icon: Icons.payments_outlined,
-                                    label: 'Payment Method',
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE8F5E9),
-                                      borderRadius:
-                                          BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: LDColors.primary,
-                                        width: 1,
+                                // ── Delivery address card
+                                _SectionCard(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const _SectionTitle(
+                                        icon: Icons.location_on_outlined,
+                                        label: 'Delivery Address',
                                       ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
+                                      const SizedBox(height: 12),
+                                      _DeliveryAddressWidget(
+                                        activeAddress: activeAddress,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // ── Payment method card (COD only)
+                                _SectionCard(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const _SectionTitle(
+                                        icon: Icons.payments_outlined,
+                                        label: 'Payment Method',
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        padding: const EdgeInsets.all(14),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFE8F5E9),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
                                             color: LDColors.primary,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.money_rounded,
-                                            color: Colors.white,
-                                            size: 20,
+                                            width: 1,
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: const [
-                                            Text(
-                                              'Cash on Delivery',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.black87,
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 36,
+                                              height: 36,
+                                              decoration: BoxDecoration(
+                                                color: LDColors.primary,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.money_rounded,
+                                                color: Colors.white,
+                                                size: 20,
                                               ),
                                             ),
-                                            SizedBox(height: 2),
-                                            Text(
-                                              'Pay when your order arrives',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.black45,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                            const SizedBox(width: 12),
+                                            const Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Cash on Delivery',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 2),
+                                                Text(
+                                                  'Pay when your order arrives',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.black45,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const Spacer(),
+                                            const Icon(
+                                              Icons.check_circle_rounded,
+                                              color: LDColors.primary,
+                                              size: 22,
                                             ),
                                           ],
                                         ),
-                                        const Spacer(),
-                                        const Icon(
-                                          Icons.check_circle_rounded,
-                                          color: LDColors.primary,
-                                          size: 22,
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
                             ),
-
-                            // Bottom padding so content clears the button
-                            const SizedBox(height: 16),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
 
-                    // ── Sticky Place Order button
-                    _PlaceOrderButtonWidget(
-                      grandTotal: grandTotal,
-                      isLoading: checkoutState is CheckoutLoading,
-                      onPressed: items.isEmpty
-                          ? null
-                          : () {
-                              context.read<CheckoutCubit>().placeOrder(
-                                    addressId: _selectedAddressId ?? '',
-                                    paymentMethod: _paymentMethod,
-                                    cartItems: items,
-                                  );
-                            },
-                    ),
-                  ],
+                        // ── Sticky Place Order button
+                        _PlaceOrderButtonWidget(
+                          grandTotal: grandTotal,
+                          isLoading: checkoutState is CheckoutLoading,
+                          onPressed: items.isEmpty
+                              ? null
+                              : () {
+                                  context.read<CheckoutCubit>().placeOrder(
+                                        addressId: activeAddress?.id ?? '',
+                                        paymentMethod: _paymentMethod,
+                                        cartItems: items,
+                                      );
+                                },
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Delivery address widget — shows active address or prompts to set one
+// ─────────────────────────────────────────────────────────────────────────────
+class _DeliveryAddressWidget extends StatelessWidget {
+  const _DeliveryAddressWidget({this.activeAddress});
+  final AddressModel? activeAddress;
+
+  @override
+  Widget build(BuildContext context) {
+    if (activeAddress != null) {
+      return _AddressDetailsCard(address: activeAddress!);
+    }
+
+    // No active address — prompt to go to addresses page.
+    return GestureDetector(
+      onTap: () => context.push(LDAppRoute.addresses.path),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.add_location_alt_outlined,
+                color: Colors.black45, size: 22),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Set a delivery address',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black45,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddressDetailsCard extends StatelessWidget {
+  const _AddressDetailsCard({required this.address});
+  final AddressModel address;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: LDColors.primary, width: 1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: LDColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.location_on_rounded,
+                color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  address.label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  address.fullAddress,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade700,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => context.push(LDAppRoute.addresses.path),
+            child: Text(
+              'Change',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: LDColors.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -419,7 +493,6 @@ class _OrderItemRowWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Bullet
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Container(

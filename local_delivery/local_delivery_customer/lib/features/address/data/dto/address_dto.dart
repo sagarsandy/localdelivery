@@ -6,34 +6,34 @@ class AddressDto {
   const AddressDto({
     required this.id,
     required this.userId,
+    required this.phone,
     required this.label,
-    required this.addressLine1,
-    this.addressLine2,
+    required this.address,
     required this.city,
     required this.pincode,
-    required this.isDefault,
+    required this.isActive,
   });
 
   final String id;
   final String userId;
+  final String phone;
   final String label;
-  final String addressLine1;
-  final String? addressLine2;
+  final String address;
   final String city;
   final String pincode;
-  final bool isDefault;
+  final bool isActive;
 
   factory AddressDto.fromFirestore(QueryDocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return AddressDto(
       id: doc.id,
-      userId: data['user_id'] as String,
+      userId: data['userId'] as String? ?? '',
+      phone: data['phone'] as String? ?? '',
       label: data['label'] as String? ?? 'Home',
-      addressLine1: data['address_line_1'] as String,
-      addressLine2: data['address_line_2'] as String?,
-      city: data['city'] as String,
-      pincode: data['pincode'] as String,
-      isDefault: data['is_default'] as bool? ?? false,
+      address: data['address'] as String ?? '',
+      city: data['city'] as String? ?? '',
+      pincode: data['pincode'] as String? ?? '',
+      isActive: data['isActive'] as bool? ?? false,
     );
   }
 
@@ -41,46 +41,46 @@ class AddressDto {
     final data = doc.data() as Map<String, dynamic>;
     return AddressDto(
       id: doc.id,
-      userId: data['user_id'] as String,
+      userId: data['userId'] as String? ?? '',
+      phone: data['phone'] as String? ?? '',
       label: data['label'] as String? ?? 'Home',
-      addressLine1: data['address_line_1'] as String,
-      addressLine2: data['address_line_2'] as String?,
-      city: data['city'] as String,
-      pincode: data['pincode'] as String,
-      isDefault: data['is_default'] as bool? ?? false,
+      address: data['address'] as String? ?? '',
+      city: data['city'] as String? ?? '',
+      pincode: data['pincode'] as String? ?? '',
+      isActive: data['isActive'] as bool? ?? false,
     );
   }
 
   AddressModel toDomain() => AddressModel(
         id: id,
         userId: userId,
+        phone: phone,
         label: label,
-        addressLine1: addressLine1,
-        addressLine2: addressLine2,
+        address: address,
         city: city,
         pincode: pincode,
-        isDefault: isDefault,
+        isActive: isActive,
       );
 
   /// Map for Firestore write (excludes id).
   Map<String, dynamic> toFirestore() => {
         'user_id': userId,
+        'phone': phone,
         'label': label,
-        'address_line_1': addressLine1,
-        'address_line_2': addressLine2,
+        'address': address,
         'city': city,
         'pincode': pincode,
-        'is_default': isDefault,
+        'is_active': isActive,
       };
 
   static AddressDto fromDomain(AddressModel model) => AddressDto(
         id: model.id,
         userId: model.userId,
+        phone: model.phone,
         label: model.label,
-        addressLine1: model.addressLine1,
-        addressLine2: model.addressLine2,
+        address: model.address,
         city: model.city,
         pincode: model.pincode,
-        isDefault: model.isDefault,
+        isActive: model.isActive,
       );
 }

@@ -5,6 +5,8 @@ import 'package:local_delivery_ui/local_delivery_ui.dart';
 
 import '../../../../app/router/ld_app_routes.dart';
 import '../../../../di/service_locator.dart';
+import '../../../address/cubit/address_cubit.dart';
+import '../../../address/cubit/address_state.dart';
 import '../../cubit/home_cubit.dart';
 import '../../cubit/home_state.dart';
 import '../../domain/models/subcategory_model.dart';
@@ -18,8 +20,15 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => locator<HomeCubit>()..loadHome(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => locator<HomeCubit>()..loadHome(),
+        ),
+        BlocProvider.value(
+          value: locator<AddressCubit>(),
+        ),
+      ],
       child: const Scaffold(
         backgroundColor: Color(0xFFF5F5F5),
         body: _HomeBodyWidget(),
@@ -66,8 +75,6 @@ class _HomeContentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Derive sections directly from Firebase category order — no hardcoding.
-    // Only include categories that have at least one subcategory loaded.
     final categorySections = state.categories
         .where((cat) {
           final key = cat.name.toLowerCase();
@@ -83,7 +90,7 @@ class _HomeContentWidget extends StatelessWidget {
 
     return CustomScrollView(
       slivers: [
-        // ── Header
+        // ── Header (shows active address)
         const SliverToBoxAdapter(child: _HomeHeaderWidget()),
 
         // ── Search bar
@@ -134,7 +141,7 @@ class _HomeContentWidget extends StatelessWidget {
           child: TrendingItemsSectionWidget(products: state.trendingProducts),
         ),
 
-        // ── Per-category subcategory sections (skip empty, alternate layout)
+        // ── Per-category subcategory sections
         for (int i = 0; i < categorySections.length; i++)
           SliverToBoxAdapter(
             child: CategorySubcategoriesSectionWidget(
@@ -164,6 +171,9 @@ class _HomeContentWidget extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Header — shows the active delivery address from AddressCubit singleton
+// ─────────────────────────────────────────────────────────────────────────────
 class _HomeHeaderWidget extends StatelessWidget {
   const _HomeHeaderWidget();
 
@@ -173,44 +183,71 @@ class _HomeHeaderWidget extends StatelessWidget {
       bottom: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: LDColors.primary.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.location_on,
-                  color: LDColors.primary, size: 20),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'DELIVERY TO',
-                    style: context.labelSmall.copyWith(
-                      color: LDColors.textSecondary,
-                      letterSpacing: 0.8,
-                      fontSize: 10,
-                    ),
+        child: BlocBuilder<AddressCubit, AddressState>(
+          builder: (context, addressState) {
+            final active = addressState is AddressLoaded
+                ? addressState.activeAddress
+                : null;
+
+            final addressText = active != null
+                ? active.shortAddress
+                : 'Set delivery address';
+
+            final isLoading = addressState is AddressLoading;
+
+            return Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: LDColors.primary.withOpacity(0.12),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '123 Green Valley, Bangalore',
-                    style: context.bodyMedium
-                        .copyWith(fontWeight: FontWeight.w600),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: const Icon(Icons.location_on,
+                      color: LDColors.primary, size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'DELIVERY TO',
+                        style: context.labelSmall.copyWith(
+                          color: LDColors.textSecondary,
+                          letterSpacing: 0.8,
+                          fontSize: 10,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      isLoading
+                          ? Container(
+                              width: 140,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            )
+                          : Text(
+                              addressText,
+                              style: context.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: active != null
+                                    ? Colors.black87
+                                    : Colors.black45,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

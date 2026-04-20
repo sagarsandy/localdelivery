@@ -1,0 +1,7 @@
+coupons:
+    coupon: string
+    description: string
+    type: string
+    value: int
+    isActive: boolean
+    expiryDate: date
