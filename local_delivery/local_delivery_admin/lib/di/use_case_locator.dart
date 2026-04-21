@@ -5,6 +5,14 @@ import '../features/categories/domain/use_cases/add_category_use_case.dart';
 import '../features/categories/domain/use_cases/delete_category_use_case.dart';
 import '../features/categories/domain/use_cases/get_categories_use_case.dart';
 import '../features/categories/domain/use_cases/update_category_use_case.dart';
+import '../features/subcategories/domain/use_cases/add_subcategory_use_case.dart';
+import '../features/subcategories/domain/use_cases/delete_subcategory_use_case.dart';
+import '../features/subcategories/domain/use_cases/get_subcategories_use_case.dart';
+import '../features/subcategories/domain/use_cases/update_subcategory_use_case.dart';
+import '../features/products/domain/use_cases/get_products_use_case.dart';
+import '../features/products/domain/use_cases/add_product_use_case.dart';
+import '../features/products/domain/use_cases/update_product_use_case.dart';
+import '../features/products/domain/use_cases/delete_product_use_case.dart';
 
 Future<void> registerUseCases(GetIt locator) async {
   // Auth
@@ -16,4 +24,16 @@ Future<void> registerUseCases(GetIt locator) async {
   locator.registerLazySingleton(() => AddCategoryUseCase(locator()));
   locator.registerLazySingleton(() => UpdateCategoryUseCase(locator()));
   locator.registerLazySingleton(() => DeleteCategoryUseCase(locator()));
+
+  // Subcategories
+  locator.registerLazySingleton(() => GetSubcategoriesUseCase(locator()));
+  locator.registerLazySingleton(() => AddSubcategoryUseCase(locator()));
+  locator.registerLazySingleton(() => UpdateSubcategoryUseCase(locator()));
+  locator.registerLazySingleton(() => DeleteSubcategoryUseCase(locator()));
+
+  // Products
+  locator.registerLazySingleton(() => GetProductsUseCase(locator()));
+  locator.registerLazySingleton(() => AddProductUseCase(locator()));
+  locator.registerLazySingleton(() => UpdateProductUseCase(locator()));
+  locator.registerLazySingleton(() => DeleteProductUseCase(locator()));
 }

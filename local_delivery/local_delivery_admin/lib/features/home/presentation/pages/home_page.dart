@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:local_delivery_ui/local_delivery_ui.dart';
 
 import '../../../categories/presentation/pages/categories_page.dart';
+import '../../../subcategories/presentation/pages/subcategories_page.dart';
+import '../../../products/presentation/pages/products_page.dart';
 import '../widgets/admin_drawer_widget.dart';
 import '../widgets/section_placeholder_widget.dart';
 
@@ -18,6 +20,8 @@ class _HomePageState extends State<HomePage> {
   Widget _buildSection(AdminSection section) {
     return switch (section) {
       AdminSection.categories => const CategoriesPage(),
+      AdminSection.subCategories => const SubcategoriesPage(),
+      AdminSection.products => const ProductsPage(),
       _ => SectionPlaceholderWidget(section: section),
     };
   }

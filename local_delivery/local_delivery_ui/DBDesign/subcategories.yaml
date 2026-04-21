@@ -1,4 +1,4 @@
-subCategories:
+subcategories:
     id: string
     image: string
     title: string
