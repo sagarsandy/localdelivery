@@ -4,6 +4,7 @@ import 'package:local_delivery_ui/local_delivery_ui.dart';
 import '../../../categories/presentation/pages/categories_page.dart';
 import '../../../subcategories/presentation/pages/subcategories_page.dart';
 import '../../../products/presentation/pages/products_page.dart';
+import '../../../coupons/presentation/pages/coupons_page.dart';
 import '../widgets/admin_drawer_widget.dart';
 import '../widgets/section_placeholder_widget.dart';
 
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
       AdminSection.categories => const CategoriesPage(),
       AdminSection.subCategories => const SubcategoriesPage(),
       AdminSection.products => const ProductsPage(),
+      AdminSection.coupons => const CouponsPage(),
       _ => SectionPlaceholderWidget(section: section),
     };
   }

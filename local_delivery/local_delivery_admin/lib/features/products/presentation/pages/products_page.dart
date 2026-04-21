@@ -172,6 +172,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   right: 16,
                   bottom: 16,
                   child: FloatingActionButton.extended(
+                    heroTag: null,
                     onPressed: state is ProductActionInProgress
                         ? null
                         : () => _showSheet(

@@ -2,3 +2,4 @@ usedCoupons:
     coupon: string
     phone: string
     date: date
+    value: double

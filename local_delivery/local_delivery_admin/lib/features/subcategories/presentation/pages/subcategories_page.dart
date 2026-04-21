@@ -144,6 +144,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
                   right: 16,
                   bottom: 16,
                   child: FloatingActionButton.extended(
+                    heroTag: null,
                     onPressed: state is SubcategoryActionInProgress
                         ? null
                         : () => _showSheet(

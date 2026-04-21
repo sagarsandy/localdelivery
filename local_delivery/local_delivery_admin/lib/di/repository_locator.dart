@@ -11,6 +11,9 @@ import '../features/subcategories/domain/repositories/subcategory_repository.dar
 import '../features/products/data/repositories/product_repository_impl.dart';
 import '../features/products/data/sources/product_remote_source.dart';
 import '../features/products/domain/repositories/product_repository.dart';
+import '../features/coupons/data/repositories/coupon_repository_impl.dart';
+import '../features/coupons/data/sources/coupon_remote_source.dart';
+import '../features/coupons/domain/repositories/coupon_repository.dart';
 
 Future<void> registerRepositories(GetIt locator) async {
   locator.registerLazySingleton<AuthRepository>(
@@ -24,5 +27,8 @@ Future<void> registerRepositories(GetIt locator) async {
   );
   locator.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(locator<ProductRemoteSource>()),
+  );
+  locator.registerLazySingleton<CouponRepository>(
+    () => CouponRepositoryImpl(locator<CouponRemoteSource>()),
   );
 }

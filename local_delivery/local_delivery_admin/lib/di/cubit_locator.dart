@@ -4,6 +4,8 @@ import '../features/auth/otp/cubit/otp_cubit.dart';
 import '../features/categories/cubit/categories_cubit.dart';
 import '../features/subcategories/cubit/subcategories_cubit.dart';
 import '../features/products/cubit/products_cubit.dart';
+import '../features/coupons/cubit/coupons_cubit.dart';
+import '../features/coupons/cubit/coupon_details_cubit.dart';
 
 Future<void> registerCubits(GetIt locator) async {
   locator.registerFactory(() => LoginCubit(locator()));
@@ -19,4 +21,8 @@ Future<void> registerCubits(GetIt locator) async {
     () => ProductsCubit(
         locator(), locator(), locator(), locator(), locator(), locator()),
   );
+  locator.registerFactory(
+    () => CouponsCubit(locator(), locator(), locator(), locator()),
+  );
+  locator.registerFactory(() => CouponDetailsCubit(locator()));
 }

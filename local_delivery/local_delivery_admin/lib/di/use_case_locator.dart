@@ -13,6 +13,11 @@ import '../features/products/domain/use_cases/get_products_use_case.dart';
 import '../features/products/domain/use_cases/add_product_use_case.dart';
 import '../features/products/domain/use_cases/update_product_use_case.dart';
 import '../features/products/domain/use_cases/delete_product_use_case.dart';
+import '../features/coupons/domain/use_cases/get_coupons_use_case.dart';
+import '../features/coupons/domain/use_cases/add_coupon_use_case.dart';
+import '../features/coupons/domain/use_cases/update_coupon_use_case.dart';
+import '../features/coupons/domain/use_cases/delete_coupon_use_case.dart';
+import '../features/coupons/domain/use_cases/get_used_coupons_use_case.dart';
 
 Future<void> registerUseCases(GetIt locator) async {
   // Auth
@@ -36,4 +41,11 @@ Future<void> registerUseCases(GetIt locator) async {
   locator.registerLazySingleton(() => AddProductUseCase(locator()));
   locator.registerLazySingleton(() => UpdateProductUseCase(locator()));
   locator.registerLazySingleton(() => DeleteProductUseCase(locator()));
+
+  // Coupons
+  locator.registerLazySingleton(() => GetCouponsUseCase(locator()));
+  locator.registerLazySingleton(() => AddCouponUseCase(locator()));
+  locator.registerLazySingleton(() => UpdateCouponUseCase(locator()));
+  locator.registerLazySingleton(() => DeleteCouponUseCase(locator()));
+  locator.registerLazySingleton(() => GetUsedCouponsUseCase(locator()));
 }

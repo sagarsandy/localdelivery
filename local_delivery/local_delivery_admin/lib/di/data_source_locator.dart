@@ -7,6 +7,8 @@ import '../features/subcategories/data/sources/subcategory_remote_source.dart';
 import '../features/subcategories/data/sources/firebase/firebase_subcategory_source.dart';
 import '../features/products/data/sources/product_remote_source.dart';
 import '../features/products/data/sources/firebase/firebase_product_source.dart';
+import '../features/coupons/data/sources/coupon_remote_source.dart';
+import '../features/coupons/data/sources/firebase/firebase_coupon_source.dart';
 
 Future<void> registerDataSources(GetIt locator) async {
   locator.registerLazySingleton<AuthRemoteSource>(() => FirebaseAuthSource());
@@ -16,4 +18,6 @@ Future<void> registerDataSources(GetIt locator) async {
       () => FirebaseSubcategorySource());
   locator.registerLazySingleton<ProductRemoteSource>(
       () => FirebaseProductSource());
+  locator.registerLazySingleton<CouponRemoteSource>(
+      () => FirebaseCouponSource());
 }
