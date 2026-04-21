@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "303809461952",
+    "project_id": "localdelivery-2ca48",
+    "storage_bucket": "localdelivery-2ca48.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303809461952:android:c1a91711aacec4409bf725",
+        "android_client_info": {
+          "package_name": "com.localdelivery.local_delivery_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-6qkOHbicQc5ndK9ruDVqK6ksreOMv4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303809461952:android:efbc9a031bd6d2889bf725",
+        "android_client_info": {
+          "package_name": "com.localdelivery.local_delivery_customer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-6qkOHbicQc5ndK9ruDVqK6ksreOMv4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
