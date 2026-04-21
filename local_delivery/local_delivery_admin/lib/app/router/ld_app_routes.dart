@@ -1,7 +1,7 @@
 enum LDAppRoute {
   login,
   otp,
-  dashboard,
+  home,
 }
 
 extension LDAppRouteExt on LDAppRoute {
@@ -9,7 +9,7 @@ extension LDAppRouteExt on LDAppRoute {
     switch (this) {
       case LDAppRoute.login: return '/login';
       case LDAppRoute.otp: return '/otp';
-      case LDAppRoute.dashboard: return '/dashboard';
+      case LDAppRoute.home: return '/home';
     }
   }
 }

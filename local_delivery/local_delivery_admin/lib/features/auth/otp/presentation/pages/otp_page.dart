@@ -43,6 +43,7 @@ class _OtpPageState extends State<OtpPage> {
   }
 
   void _onPrimaryTap(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
     if (_showNameSection) {
       context.read<OtpCubit>().saveName(name: _nameController.text.trim());
     } else {
@@ -159,7 +160,7 @@ class _OtpPageState extends State<OtpPage> {
 
   void _handleState(BuildContext context, OtpState state) {
     if (state is OtpVerified) {
-      context.go(LDAppRoute.dashboard.path);
+      context.go(LDAppRoute.home.path);
     } else if (state is OtpVerifiedNeedName) {
       setState(() => _showNameSection = true);
     } else if (state is OtpError) {

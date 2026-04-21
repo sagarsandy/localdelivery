@@ -3,18 +3,18 @@ import '../../core/session/user_session.dart';
 import 'ld_app_routes.dart';
 import '../../features/auth/login/router/login_page_route.dart';
 import '../../features/auth/otp/router/otp_page_route.dart';
-import '../../features/dashboard/router/dashboard_page_route.dart';
+import '../../features/home/router/home_page_route.dart';
 
 class LDAppRouter {
   LDAppRouter._();
 
   static final GoRouter router = GoRouter(
-    initialLocation: LDAppRoute.dashboard.path,
+    initialLocation: LDAppRoute.home.path,
     redirect: _handleAuthRedirect,
     routes: [
       LoginPageRoute().route,
       OtpPageRoute().route,
-      DashboardPageRoute().route,
+      HomePageRoute().route,
     ],
   );
 
@@ -24,7 +24,7 @@ class LDAppRouter {
         state.matchedLocation == LDAppRoute.otp.path;
 
     if (!isLoggedIn && !isAuthRoute) return LDAppRoute.login.path;
-    if (isLoggedIn && isAuthRoute) return LDAppRoute.dashboard.path;
+    if (isLoggedIn && isAuthRoute) return LDAppRoute.home.path;
     return null;
   }
 }

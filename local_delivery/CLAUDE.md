@@ -15,6 +15,11 @@ local_delivery/
 └── local_delivery_ui/         # Shared theme, colors, and widgets
 ```
 
+> **Admin panel** (`local_delivery_admin`) follows the same clean architecture as the customer app. Widget files must end with `_widget.dart` and public widget classes must end with `Widget`.
+
+```
+```
+
 All commands must be run from inside the relevant package directory.
 
 ---
@@ -449,3 +454,4 @@ Available text style getters: `displayLarge`, `displayMedium`, `displaySmall`, `
 - **Domain models:** Extend `Equatable` and implement `props`. No Firebase imports. Use `fromMap`/`toMap` only if needed for local storage — Firestore parsing belongs in DTOs.
 - **DTOs:** Handle all Firestore-specific parsing (Timestamps, doc.id injection). Provide `fromFirestore(QueryDocumentSnapshot)` for list queries and `fromFirestoreDoc(DocumentSnapshot)` for single-doc fetches.
 - **Naming:** Files use `snake_case`. Classes use `PascalCase`. Private helpers inside a file use `_PascalCase` for widgets, `_camelCase` for methods.
+- **Widget file naming (admin):** All widget files in `local_delivery_admin` must end with `_widget.dart` and their public class names must end with `Widget`. Example: `category_card_widget.dart` → `CategoryCardWidget`. Private helper widgets inside the same file (`_PascalCase`) are exempt from this suffix rule.
