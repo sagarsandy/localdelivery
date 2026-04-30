@@ -5,6 +5,7 @@ import '../../../categories/presentation/pages/categories_page.dart';
 import '../../../subcategories/presentation/pages/subcategories_page.dart';
 import '../../../products/presentation/pages/products_page.dart';
 import '../../../coupons/presentation/pages/coupons_page.dart';
+import '../../../image_upload/presentation/pages/image_upload_page.dart';
 import '../widgets/admin_drawer_widget.dart';
 import '../widgets/section_placeholder_widget.dart';
 
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
       AdminSection.subCategories => const SubcategoriesPage(),
       AdminSection.products => const ProductsPage(),
       AdminSection.coupons => const CouponsPage(),
+      AdminSection.imageUpload => const ImageUploadPage(),
       _ => SectionPlaceholderWidget(section: section),
     };
   }

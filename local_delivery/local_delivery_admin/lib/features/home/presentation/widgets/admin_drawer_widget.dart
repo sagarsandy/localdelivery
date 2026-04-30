@@ -11,6 +11,7 @@ enum AdminSection {
   transactions,
   customers,
   profile,
+  imageUpload,
 }
 
 extension AdminSectionExt on AdminSection {
@@ -25,6 +26,7 @@ extension AdminSectionExt on AdminSection {
       case AdminSection.transactions: return 'Transactions';
       case AdminSection.customers: return 'Customers';
       case AdminSection.profile: return 'Profile';
+      case AdminSection.imageUpload: return 'Image Upload';
     }
   }
 
@@ -39,6 +41,7 @@ extension AdminSectionExt on AdminSection {
       case AdminSection.transactions: return Icons.payments_outlined;
       case AdminSection.customers: return Icons.people_outline;
       case AdminSection.profile: return Icons.person_outline;
+      case AdminSection.imageUpload: return Icons.cloud_upload_outlined;
     }
   }
 }
